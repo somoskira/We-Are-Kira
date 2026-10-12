@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WE ARE KIRA</title>
+<!-- Importamos fuentes ciberpunk / hacker desde Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 /* 1. CONFIGURACIÓN DEL FONDO CON TU PORTADA (portada.jpg) */
 body {
@@ -11,7 +13,8 @@ body {
     min-height: 100vh;
     background-color: #000;
     color: #fff;
-    font-family: Arial, sans-serif;
+    /* Aplicamos la fuente tipo terminal hacker a toda la web */
+    font-family: 'Share Tech Mono', monospace;
     text-align: center;
     position: relative;
 }
@@ -28,12 +31,12 @@ body::before {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    opacity: 0.18; /* Transparencia tenue para que las letras resalten sobre todo */
+    opacity: 0.18; /* Transparencia tenue para que las letras resalten */
     z-index: -1;
     pointer-events: none;
 }
 
-/* 2. ESTILOS DE ELEMENTOS Y BOTONES NEÓN */
+/* 2. ESTILOS DE ELEMENTOS Y BOTONES NEÓN HACKER */
 .portada {
     width: 100%;
     height: 380px;
@@ -57,6 +60,12 @@ body::before {
     animation: bordeVerde 2s infinite alternate !important;
 }
 
+h1, h2 {
+    /* Fuente geométrica futurista para títulos principales */
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 2px;
+}
+
 h1 {
     animation: verdeNeon 1.5s infinite alternate !important;
     color: #fff !important;
@@ -74,6 +83,8 @@ h1 {
     text-decoration: none;
     border-radius: 30px;
     font-weight: bold;
+    font-family: 'Orbitron', sans-serif; /* Letras de botones con toque tecnológico */
+    letter-spacing: 1px;
     border: 1px solid #00ff00 !important;
     box-shadow: 0 0 15px #00ff00, 0 0 30px #00ff00 !important;
     animation: verdeNeon 1.5s infinite alternate !important;
