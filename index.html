@@ -68,6 +68,24 @@ h1{animation:verdeNeon 1.5s infinite alternate !important;color:#fff !important;
   opacity: 0.18 !important;
   z-index: -1 !important;
   pointer-events: none !important;
+}/* GIF EN TODO EL FONDO OSCURO */
+body {
+  position: relative !important;
+  background: #000 !important;
+}
+
+body::before {
+  content: "" !important;
+  position: fixed !important;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-image: url('https://i.imgur.com/uB1dmqQ.gif') !important;
+  background-repeat: no-repeat !important;
+  background-position: center center !important;
+  background-size: cover !important;
+  opacity: 0.12 !important;
+  z-index: -999 !important;
+  pointer-events: none !important;
 }
 </style>
 </head>
