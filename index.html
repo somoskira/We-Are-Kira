@@ -49,6 +49,25 @@ h1{animation:verdeNeon 1.5s infinite alternate !important;color:#fff !important;
 @keyframes verdeNeon{
   from{text-shadow:0 0 10px #00ff00}
   to{text-shadow:0 0 20px #00ff00, 0 0 40px #00ff00, 0 0 80px #00ff00}
+}/* FONDO GIF TRANSPARENTE - HERMANDAD */
+.denuncias, .abajo {
+  position: relative !important;
+  background-color: #000 !important;
+  overflow: hidden !important;
+  isolation: isolate;
+}
+
+.denuncias::before, .abajo::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background-image: url('https://i.imgur.com/uB1dmqQ.gif') !important;
+  background-repeat: no-repeat !important;
+  background-position: center center !important;
+  background-size: cover !important;
+  opacity: 0.18 !important;
+  z-index: -1 !important;
+  pointer-events: none !important;
 }
 </style>
 </head>
