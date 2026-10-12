@@ -94,7 +94,31 @@ h1 {
 .btn-green { background: #25D366; }
 .btn-black { background: #111; border: 1px solid #444; }
 
-/* Animaciones */
+/* EFECTO FANTASMA Y BRILLO VERDE NEÓN PARA LA MÁSCARA */
+.mascara-efecto {
+    width: 300px;
+    border-radius: 15px;
+    border: 2px solid #00ff00;
+    box-shadow: 0 0 20px #00ff00, 0 0 40px rgba(0, 255, 0, 0.5);
+    animation: efectoFantasma 3s infinite ease-in-out;
+}
+
+@keyframes efectoFantasma {
+    0% {
+        opacity: 0.2;
+        filter: drop-shadow(0 0 5px #00ff00);
+    }
+    50% {
+        opacity: 1;
+        filter: drop-shadow(0 0 25px #00ff00) drop-shadow(0 0 50px #00ff00);
+    }
+    100% {
+        opacity: 0.2;
+        filter: drop-shadow(0 0 5px #00ff00);
+    }
+}
+
+/* Animaciones generales */
 @keyframes neonRed {
     from { text-shadow: 0 0 5px red; }
     to { text-shadow: 0 0 15px red, 0 0 30px red; }
@@ -128,8 +152,10 @@ h1 {
 <a class="btn btn-green" href="https://chat.whatsapp.com/D18tPRmyAVyJb3HdljgUpk" target="_blank">💬 WHATSAPP SECRETO</a>
 <a class="btn btn-black" href="https://www.tiktok.com/@wearekiraoff" target="_blank">🎵 TIKTOK</a>
 
-<div style="width:90%;max-width:850px;margin:50px auto;background:rgba(10,10,10,0.85);border:2px solid red;border-radius:20px;padding:25px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:25px">
-  <img src="mascara.jpg" style="width:300px;border-radius:15px;border:2px solid red">
+<div style="width:90%;max-width:850px;margin:50px auto;background:rgba(10,10,10,0.85);border:2px solid #00ff00;border-radius:20px;padding:25px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:25px;box-shadow: 0 0 20px rgba(0,255,0,0.3);">
+  <!-- Imagen con la clase del efecto fantasma y brillo verde neón -->
+  <img src="mascara.jpg" class="mascara-efecto">
+  
   <div style="flex:1;min-width:280px;text-align:left">
     <p style="font-size:15px;color:#ccc;line-height:1.4">Usa la máscara como símbolo de pertenencia a nuestra hermandad</p>
     <p style="font-size:13px;color:#fff;margin-top:20px;letter-spacing:3px;text-shadow:0 0 5px red,0 0 10px red,0 0 20px red;animation:neonRed 1.5s infinite alternate">BY LORD POOL AND MAX</p>
