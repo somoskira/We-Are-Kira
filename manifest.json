@@ -1,0 +1,15 @@
+{
+  "name": "Kira Perú",
+  "short_name": "Kira",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#00ff00",
+  "icons": [
+    {
+      "src": "https://somoskira.github.io/We-Are-Kira/favicon.ico",
+      "sizes": "192x192 512x512",
+      "type": "image/x-icon"
+    }
+  ]
+}
