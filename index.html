@@ -392,9 +392,17 @@ document.addEventListener("DOMContentLoaded", function() {
 <script>
   document.addEventListener("click", function (e) {
     let target = e.target.closest("a");
-    if (target && (target.href.includes("facebook.com") || target.href.includes("tiktok.com"))) {
-      e.preventDefault();
-      window.open(target.href, "_system");
+    if (target) {
+      // Si es el botón de TikTok
+      if (target.href.includes("tiktok.com")) {
+        e.preventDefault();
+        window.location.href = "intent://www.tiktok.com/@wearekiraoff#Intent;scheme=https;package=com.zhiliaoapp.musically;end";
+      }
+      // Si es el botón de Facebook
+      else if (target.href.includes("facebook.com")) {
+        e.preventDefault();
+        window.location.href = "intent://www.facebook.com/share/1CtQR53pL2/#Intent;scheme=https;package=com.facebook.katana;end";
+      }
     }
   });
 </script>
