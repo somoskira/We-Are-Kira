@@ -389,26 +389,34 @@ document.addEventListener("DOMContentLoaded", function() {
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
 </script>
+<!-- SCRIPT DEFINITIVO PARA ABRIR REDES SOCIALES FORZADAS -->
 <script>
   document.addEventListener("click", function (e) {
-    let target = e.target.closest("a");
-    if (target) {
-      const href = target.getAttribute("href");
+    let link = e.target.closest("a");
+    if (!link) return;
+
+    let url = link.getAttribute("href");
+
+    if (url && (url.includes("facebook.com") || url.includes("tiktok.com"))) {
+      e.preventDefault();
       
-      // Si el enlace es de TikTok o Facebook
-      if (href && (href.includes("tiktok.com") || href.includes("facebook.com"))) {
-        e.preventDefault();
+      // Intentar abrir mediante el intent de Android o el sistema nativo
+      try {
+        let externalUrl = url;
         
-        // Creamos una ventana emergente que fuerza la apertura externa en Android
-        let a = document.createElement("a");
-        a.href = href;
-        a.target = "_blank";
-        a.rel = "noopener noreferrer";
-        
-        // Simular clic nativo
-        let evt = document.createEvent("MouseEvents");
-        evt.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
-        a.dispatchEvent(evt);
+        // Si es TikTok, estructurar intent para app de TikTok
+        if (url.includes("tiktok.com")) {
+          externalUrl = "intent://instagram.com/#Intent;scheme=https;package=com.zhiliaoapp.musically;S.browser_fallback_url=" + encodeURIComponent(url) + ";end";
+        } 
+        // Si es Facebook, estructurar intent para app de Facebook
+        else if (url.includes("facebook.com")) {
+          externalUrl = "intent://facebook.com/#Intent;scheme=https;package=com.facebook.katana;S.browser_fallback_url=" + encodeURIComponent(url) + ";end";
+        }
+
+        window.location.href = externalUrl;
+      } catch (err) {
+        // Enlace de respaldo si falla el intent
+        window.open(url, "_system") || window.open(url, "_blank");
       }
     }
   });
