@@ -393,15 +393,22 @@ document.addEventListener("DOMContentLoaded", function() {
   document.addEventListener("click", function (e) {
     let target = e.target.closest("a");
     if (target) {
-      // Si es el botón de TikTok
-      if (target.href.includes("tiktok.com")) {
+      const href = target.getAttribute("href");
+      
+      // Si el enlace es de TikTok o Facebook
+      if (href && (href.includes("tiktok.com") || href.includes("facebook.com"))) {
         e.preventDefault();
-        window.location.href = "intent://www.tiktok.com/@wearekiraoff#Intent;scheme=https;package=com.zhiliaoapp.musically;end";
-      }
-      // Si es el botón de Facebook
-      else if (target.href.includes("facebook.com")) {
-        e.preventDefault();
-        window.location.href = "intent://www.facebook.com/share/1CtQR53pL2/#Intent;scheme=https;package=com.facebook.katana;end";
+        
+        // Creamos una ventana emergente que fuerza la apertura externa en Android
+        let a = document.createElement("a");
+        a.href = href;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        
+        // Simular clic nativo
+        let evt = document.createEvent("MouseEvents");
+        evt.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+        a.dispatchEvent(evt);
       }
     }
   });
