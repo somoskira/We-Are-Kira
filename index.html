@@ -729,7 +729,7 @@ document.addEventListener("DOMContentLoaded", function() {
   document.addEventListener('click', activarMusica);
   document.addEventListener('touchstart', activarMusica);
 </script>
-  <!-- === PARTE 2: LOGIN CON SELECTOR DE CUENTAS FLOTANTE + CHAT WHATSAPP + NO RECARGAR MÓVIL === -->
+<!-- === PARTE 2: LOGIN GOOGLE POPUP FORZADO + CHAT WHATSAPP + SCROLL MÓVIL === -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
@@ -748,10 +748,11 @@ document.addEventListener("DOMContentLoaded", function() {
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  // CONFIGURACIÓN PARA MOSTRAR LA LISTA DE CUENTAS GUARDADAS EN TELÉFONO Y PC
+  // Forzar parámetros estrictos para evitar pantallas de Firebase Hosting
   const provider = new GoogleAuthProvider();
   provider.setCustomParameters({
-    prompt: 'select_account'
+    prompt: 'select_account',
+    hd: '*' // Permite cualquier dominio de cuenta de Google sin filtrar
   });
 
   window.auth = auth;
@@ -772,23 +773,17 @@ document.addEventListener("DOMContentLoaded", function() {
   let usuarioActual = null;
   let esPrimeraCarga = true;
 
-  // Login forzado por Popup flotante tanto en PC como en Teléfono
+  // Forzar estrictamente POPUP en cualquier dispositivo para evitar el hosting de Firebase
   async function loginConGoogle() {
     try {
       await window.signInWithPopup(window.auth, window.provider);
     } catch (error) {
-      console.error("Error al iniciar sesión:", error);
+      console.error("Error al iniciar sesión con Popup:", error);
     }
   }
 
   function cerrarSesionUsuario() {
     window.signOut(window.auth);
-  }
-
-  function solicitarPermisoNotificaciones() {
-    if ("Notification" in window && Notification.permission !== "granted") {
-      Notification.requestPermission();
-    }
   }
 
   window.addEventListener('load', () => {
@@ -801,7 +796,6 @@ document.addEventListener("DOMContentLoaded", function() {
         if (modal) modal.style.display = "none";
         if (chatContainer) chatContainer.style.display = "block";
         
-        solicitarPermisoNotificaciones();
         aplicarFixDeslizamientoMovil();
         cargarChatEstiloWhatsApp();
       } else {
@@ -812,7 +806,6 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   });
 
-  // Evita que el teléfono recargue la página al deslizar los comentarios antiguos
   function aplicarFixDeslizamientoMovil() {
     const box = document.getElementById("chatBox");
     if (box) {
@@ -831,13 +824,23 @@ document.addEventListener("DOMContentLoaded", function() {
     return "#" + "00000".substring(0, 6 - color.length) + color;
   }
 
-  function lanzarNotificacion(usuario, texto) {
-    if ("Notification" in window && Notification.permission === "granted") {
-      new Notification(`💬 Nuevo mensaje de ${usuario}`, {
-        body: texto,
-        icon: "https://via.placeholder.com/128/00ff00/000000?text=Kira"
-      });
+  function mostrarAvisoMensajeNuevo(usuario, texto) {
+    const box = document.getElementById("chatBox");
+    if (!box) return;
+
+    let aviso = document.getElementById("avisoNuevoMsg");
+    if (!aviso) {
+      aviso = document.createElement("div");
+      aviso.id = "avisoNuevoMsg";
+      aviso.style.cssText = "position: sticky; top: 0; z-index: 10; background: #00ff00; color: #000; font-weight: bold; font-size: 11px; padding: 6px; text-align: center; border-radius: 4px; box-shadow: 0 0 10px #00ff00; margin-bottom: 8px;";
+      box.prepend(aviso);
     }
+    
+    aviso.textContent = `🔔 ¡${usuario} ha enviado un mensaje!`;
+    
+    setTimeout(() => {
+      if (aviso) aviso.remove();
+    }, 4000);
   }
 
   function cargarChatEstiloWhatsApp() {
@@ -878,7 +881,7 @@ document.addEventListener("DOMContentLoaded", function() {
         const ultimoDoc = snap.docs[snap.docs.length - 1].data();
         const miUid = window.auth.currentUser ? window.auth.currentUser.uid : "";
         if (ultimoDoc.uid !== miUid) {
-          lanzarNotificacion(ultimoDoc.usuario, ultimoDoc.texto);
+          mostrarAvisoMensajeNuevo(ultimoDoc.usuario, ultimoDoc.texto);
         }
       }
 
