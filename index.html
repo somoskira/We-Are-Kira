@@ -729,7 +729,7 @@ document.addEventListener("DOMContentLoaded", function() {
   document.addEventListener('click', activarMusica);
   document.addEventListener('touchstart', activarMusica);
 </script>
-    <!-- === INICIO: LÓGICA FIREBASE === -->
+   <!-- === PARTE 2: LÓGICA FIREBASE (CON SELECTOR DE CUENTAS AUTOMÁTICO) === -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
@@ -747,7 +747,12 @@ document.addEventListener("DOMContentLoaded", function() {
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
+
+  // CONFIGURACIÓN PARA MOSTRAR LA LISTA DE CUENTAS DEL TELÉFONO
   const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({
+    prompt: 'select_account'
+  });
 
   window.auth = auth;
   window.db = db;
@@ -770,7 +775,7 @@ document.addEventListener("DOMContentLoaded", function() {
     try {
       await window.signInWithPopup(window.auth, window.provider);
     } catch (error) {
-      alert("Error al iniciar sesión: " + error.message);
+      console.error("Error al iniciar sesión:", error);
     }
   }
 
@@ -832,6 +837,6 @@ document.addEventListener("DOMContentLoaded", function() {
     input.value = "";
   }
 </script>
-<!-- === FIN: LÓGICA FIREBASE === -->
+<!-- === FIN PARTE 2 === -->
 </body>
 </html>
