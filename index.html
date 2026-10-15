@@ -717,51 +717,47 @@ document.addEventListener("DOMContentLoaded", function() {
   document.addEventListener('click', activarMusica);
   document.addEventListener('touchstart', activarMusica);
 </script>
-    <!-- SCRIPT DE LOGIN CON GOOGLE (CON TUS CREDENCIALES) -->
-<script type="module">
-  // Importar Firebase SDKs
+    <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-  // Tu configuración real de Firebase
   const firebaseConfig = {
     apiKey: "AIzaSyDI01O2nUFYS1s9zRHpf3-IQs79ucceSUU",
-    authDomain: "dibujitos-77f10.firebaseapp.com",
+    authDomain: "somoskira.github.io", 
     projectId: "dibujitos-77f10",
     storageBucket: "dibujitos-77f10.firebasestorage.app",
     messagingSenderId: "207076590527",
-    appId: "1:207076590527:web:db12f33518e57d7ed7570a",
-    measurementId: "G-YVVVS6M3LJ"
+    appId: "1:207076590527:web:db12f33518e57d7ed7570a"
   };
 
-  // Inicializar Firebase
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
+  auth.useDeviceLanguage();
+  
   const provider = new GoogleAuthProvider();
 
-  // Elementos de la interfaz (Botón y Perfil)
   const btnLogin = document.getElementById('btn-google-login');
   const btnLogout = document.getElementById('btn-google-logout');
   const userProfile = document.getElementById('user-profile');
   const userName = document.getElementById('user-name');
   const userPhoto = document.getElementById('user-photo');
 
-  // Evento para Iniciar Sesión con Google
   if (btnLogin) {
     btnLogin.addEventListener('click', () => {
       signInWithPopup(auth, provider)
-        .catch((error) => console.error("Error al iniciar sesión:", error));
+        .then((result) => {
+          console.log("Sesión iniciada:", result.user.displayName);
+        })
+        .catch((error) => console.error("Error:", error));
     });
   }
 
-  // Evento para Cerrar Sesión
   if (btnLogout) {
     btnLogout.addEventListener('click', () => {
       signOut(auth);
     });
   }
 
-  // Mantener sesión activa y actualizar la pantalla según el usuario
   onAuthStateChanged(auth, (user) => {
     if (user) {
       if (btnLogin) btnLogin.style.display = 'none';
