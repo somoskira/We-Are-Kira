@@ -729,10 +729,10 @@ document.addEventListener("DOMContentLoaded", function() {
   document.addEventListener('click', activarMusica);
   document.addEventListener('touchstart', activarMusica);
 </script>
-   <!-- === PARTE 2: LÓGICA FIREBASE (CON SELECTOR DE CUENTAS AUTOMÁTICO) === -->
+  <!-- === PARTE 2: LÓGICA FIREBASE OPTIMIZADA (SELECTOR DE CUENTAS + CHAT DERECHA/IZQUIERDA) === -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
   import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -748,7 +748,7 @@ document.addEventListener("DOMContentLoaded", function() {
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  // CONFIGURACIÓN PARA MOSTRAR LA LISTA DE CUENTAS DEL TELÉFONO
+  // Configuración para forzar el selector de cuentas registradas en el teléfono/PC
   const provider = new GoogleAuthProvider();
   provider.setCustomParameters({
     prompt: 'select_account'
@@ -758,6 +758,8 @@ document.addEventListener("DOMContentLoaded", function() {
   window.db = db;
   window.provider = provider;
   window.signInWithPopup = signInWithPopup;
+  window.signInWithRedirect = signInWithRedirect;
+  window.getRedirectResult = getRedirectResult;
   window.signOut = signOut;
   window.onAuthStateChanged = onAuthStateChanged;
   window.addDoc = addDoc;
@@ -771,9 +773,17 @@ document.addEventListener("DOMContentLoaded", function() {
 <script>
   let usuarioActual = null;
 
+  function esAppOMovil() {
+    return /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  }
+
   async function loginConGoogle() {
     try {
-      await window.signInWithPopup(window.auth, window.provider);
+      if (esAppOMovil()) {
+        await window.signInWithRedirect(window.auth, window.provider);
+      } else {
+        await window.signInWithPopup(window.auth, window.provider);
+      }
     } catch (error) {
       console.error("Error al iniciar sesión:", error);
     }
@@ -783,7 +793,13 @@ document.addEventListener("DOMContentLoaded", function() {
     window.signOut(window.auth);
   }
 
-  window.addEventListener('load', () => {
+  window.addEventListener('load', async () => {
+    try {
+      await window.getRedirectResult(window.auth);
+    } catch (err) {
+      console.error("Error en resultado de redirección:", err);
+    }
+
     window.onAuthStateChanged(window.auth, (user) => {
       const modal = document.getElementById("modalLogin");
       const chatContainer = document.getElementById("chat-container");
@@ -792,7 +808,7 @@ document.addEventListener("DOMContentLoaded", function() {
         usuarioActual = user;
         if (modal) modal.style.display = "none";
         if (chatContainer) chatContainer.style.display = "block";
-        cargarChatEstiloTarjetas();
+        cargarChatEstiloWhatsApp();
       } else {
         usuarioActual = null;
         if (modal) modal.style.display = "flex";
@@ -801,21 +817,45 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   });
 
-  function cargarChatEstiloTarjetas() {
+  // Asigna un color distintivo según el UID de cada usuario
+  function obtenerColorUsuario(uid) {
+    let hash = 0;
+    for (let i = 0; i < uid.length; i++) {
+      hash = uid.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const color = (hash & 0x00FFFFFF).toString(16).toUpperCase();
+    return "#" + "00000".substring(0, 6 - color.length) + color;
+  }
+
+  function cargarChatEstiloWhatsApp() {
     const qChat = window.query(window.collection(window.db, "mensajes_portada"), window.orderBy("fecha", "asc"));
     window.onSnapshot(qChat, (snap) => {
       const box = document.getElementById("chatBox");
       if (!box) return;
       box.innerHTML = "";
+      
       snap.forEach(doc => {
         const d = doc.data();
+        const miUid = window.auth.currentUser ? window.auth.currentUser.uid : "";
+        const esMio = d.uid === miUid;
+
+        const alineacion = esMio ? "text-align: right; margin-left: 15%;" : "text-align: left; margin-right: 15%;";
+        const estiloBurbuja = esMio 
+          ? "background: rgba(0, 255, 120, 0.12); border: 1px solid #00ff78;" 
+          : "background: rgba(0, 180, 255, 0.08); border: 1px solid #00b4ff;";
+        
+        const colorNombre = esMio ? "#00ff78" : (d.uid ? obtenerColorUsuario(d.uid) : "#00ffff");
+
         box.innerHTML += `
-          <div style="background: rgba(0, 255, 0, 0.03); border: 1px solid #004400; border-radius: 8px; padding: 8px; margin-bottom: 8px;">
-            <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
-              <img src="${d.foto || 'https://via.placeholder.com/30'}" style="width: 28px; height: 28px; border-radius: 50%; border: 1px solid #00ff00; object-fit: cover;">
-              <div style="font-size: 11px; color: #00ffff; font-weight: bold;">${d.usuario}</div>
+          <div style="margin-bottom: 12px; ${alineacion}">
+            <div style="display: flex; align-items: center; gap: 6px; justify-content: ${esMio ? 'flex-end' : 'flex-start'}; margin-bottom: 3px;">
+              ${!esMio ? `<img src="${d.foto || 'https://via.placeholder.com/30'}" style="width: 22px; height: 22px; border-radius: 50%; border: 1px solid #00ff00; object-fit: cover;">` : ''}
+              <span style="font-size: 10px; color: ${colorNombre}; font-weight: bold;">${d.usuario}</span>
+              ${esMio ? `<img src="${d.foto || 'https://via.placeholder.com/30'}" style="width: 22px; height: 22px; border-radius: 50%; border: 1px solid #00ff00; object-fit: cover;">` : ''}
             </div>
-            <div style="font-size: 12px; color: #fff; padding-left: 36px;">${d.texto}</div>
+            <div style="display: inline-block; padding: 10px 14px; border-radius: 10px; ${estiloBurbuja} color: #fff; font-size: 12px; word-break: break-word; max-width: 100%;">
+              ${d.texto}
+            </div>
           </div>
         `;
       });
@@ -829,6 +869,7 @@ document.addEventListener("DOMContentLoaded", function() {
     if (!txt || !usuarioActual) return;
 
     await window.addDoc(window.collection(window.db, "mensajes_portada"), {
+      uid: usuarioActual.uid,
       usuario: usuarioActual.displayName || "Usuario",
       foto: usuarioActual.photoURL || "",
       texto: txt,
