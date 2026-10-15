@@ -822,14 +822,14 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   });
 
-  if (user) {
-        usuarioActual = user;
-        if (modal) modal.style.display = "none";
-        if (chatContainer) chatContainer.style.display = "block";
-        
-        aplicarFixDeslizamientoMovil(); // <--- PON ESTO AQUI
-        cargarChatEstiloWhatsApp();
-      }
+  function aplicarFixDeslizamientoMovil() {
+    const box = document.getElementById("chatBox");
+    if (box) {
+      box.style.overscrollBehaviorY = "contain";
+      box.style.touchAction = "pan-y";
+      box.style.webkitOverflowScrolling = "touch";
+    }
+  }
 
   function obtenerColorUsuario(uid) {
     let hash = 0;
@@ -893,7 +893,7 @@ document.addEventListener("DOMContentLoaded", function() {
         `;
       });
 
-     if (!snap.empty && !esPrimeraCarga) {
+      if (!snap.empty && !esPrimeraCarga) {
         const ultimoDoc = snap.docs[snap.docs.length - 1].data();
         const miUid = window.auth.currentUser ? window.auth.currentUser.uid : "";
         if (ultimoDoc.uid !== miUid) {
