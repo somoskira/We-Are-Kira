@@ -729,7 +729,7 @@ document.addEventListener("DOMContentLoaded", function() {
   document.addEventListener('click', activarMusica);
   document.addEventListener('touchstart', activarMusica);
 </script>
-<!-- === PARTE 2: LOGIN GOOGLE POPUP FORZADO + CHAT WHATSAPP + SCROLL MÓVIL === -->
+<!-- === PARTE 2: CÓDIGO ESTABLE Y FUNCIONAL === -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
@@ -748,11 +748,9 @@ document.addEventListener("DOMContentLoaded", function() {
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  // Forzar parámetros estrictos para evitar pantallas de Firebase Hosting
   const provider = new GoogleAuthProvider();
   provider.setCustomParameters({
-    prompt: 'select_account',
-    hd: '*' // Permite cualquier dominio de cuenta de Google sin filtrar
+    prompt: 'select_account'
   });
 
   window.auth = auth;
@@ -773,12 +771,11 @@ document.addEventListener("DOMContentLoaded", function() {
   let usuarioActual = null;
   let esPrimeraCarga = true;
 
-  // Forzar estrictamente POPUP en cualquier dispositivo para evitar el hosting de Firebase
   async function loginConGoogle() {
     try {
       await window.signInWithPopup(window.auth, window.provider);
     } catch (error) {
-      console.error("Error al iniciar sesión con Popup:", error);
+      console.error("Error al iniciar sesión:", error);
     }
   }
 
