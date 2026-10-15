@@ -683,5 +683,28 @@ document.addEventListener("DOMContentLoaded", function() {
     pacAnimId = setInterval(updatePacman, speed);
   }
 </script>
+    <!-- Reproductor para la música de fondo -->
+<audio id="bgMusic" loop preload="auto">
+  <source src="intro.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+  const bgAudio = document.getElementById('bgMusic');
+  bgAudio.volume = 0.3; // Volumen al 30%
+
+  function activarMusica() {
+    bgAudio.play().then(() => {
+      // Al reproducir con éxito, quitamos el detector de toque
+      document.removeEventListener('click', activarMusica);
+      document.removeEventListener('touchstart', activarMusica);
+    }).catch(err => {
+      console.log("Esperando toque del usuario para iniciar la música.");
+    });
+  }
+
+  // Detecta el primer toque o clic en cualquier parte de la pantalla
+  document.addEventListener('click', activarMusica);
+  document.addEventListener('touchstart', activarMusica);
+</script>
 </body>
 </html>
