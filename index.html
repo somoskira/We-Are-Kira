@@ -717,49 +717,62 @@ document.addEventListener("DOMContentLoaded", function() {
   document.addEventListener('click', activarMusica);
   document.addEventListener('touchstart', activarMusica);
 </script>
-    <!-- PEGA ESTO HASTA ABAJO DE TODO, JUSTO ANTES DE </body> -->
-    <script type="module">
-      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-      import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    <!-- SCRIPT DE LOGIN CON GOOGLE (CON TUS CREDENCIALES) -->
+<script type="module">
+  // Importar Firebase SDKs
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
-      const firebaseConfig = {
-        apiKey: "TU_API_KEY",
-        authDomain: "TU_AUTH_DOMAIN",
-        projectId: "TU_PROJECT_ID",
-        storageBucket: "TU_STORAGE_BUCKET",
-        messagingSenderId: "TU_MESSAGING_SENDER_ID",
-        appId: "TU_APP_ID"
-      };
+  // Tu configuración real de Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyDI01O2nUFYS1s9zRHpf3-IQs79ucceSUU",
+    authDomain: "dibujitos-77f10.firebaseapp.com",
+    projectId: "dibujitos-77f10",
+    storageBucket: "dibujitos-77f10.firebasestorage.app",
+    messagingSenderId: "207076590527",
+    appId: "1:207076590527:web:db12f33518e57d7ed7570a",
+    measurementId: "G-YVVVS6M3LJ"
+  };
 
-      const app = initializeApp(firebaseConfig);
-      const auth = getAuth(app);
-      const provider = new GoogleAuthProvider();
+  // Inicializar Firebase
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const provider = new GoogleAuthProvider();
 
-      const btnLogin = document.getElementById('btn-google-login');
-      const btnLogout = document.getElementById('btn-google-logout');
-      const userProfile = document.getElementById('user-profile');
-      const userName = document.getElementById('user-name');
-      const userPhoto = document.getElementById('user-photo');
+  // Elementos de la interfaz (Botón y Perfil)
+  const btnLogin = document.getElementById('btn-google-login');
+  const btnLogout = document.getElementById('btn-google-logout');
+  const userProfile = document.getElementById('user-profile');
+  const userName = document.getElementById('user-name');
+  const userPhoto = document.getElementById('user-photo');
 
-      btnLogin.addEventListener('click', () => {
-        signInWithPopup(auth, provider).catch((error) => console.error("Error al iniciar sesión:", error));
-      });
+  // Evento para Iniciar Sesión con Google
+  if (btnLogin) {
+    btnLogin.addEventListener('click', () => {
+      signInWithPopup(auth, provider)
+        .catch((error) => console.error("Error al iniciar sesión:", error));
+    });
+  }
 
-      btnLogout.addEventListener('click', () => {
-        signOut(auth);
-      });
+  // Evento para Cerrar Sesión
+  if (btnLogout) {
+    btnLogout.addEventListener('click', () => {
+      signOut(auth);
+    });
+  }
 
-      onAuthStateChanged(auth, (user) => {
-        if (user) {
-          btnLogin.style.display = 'none';
-          userProfile.style.display = 'flex';
-          userName.textContent = user.displayName;
-          userPhoto.src = user.photoURL || 'https://via.placeholder.com/32';
-        } else {
-          btnLogin.style.display = 'inline-block';
-          userProfile.style.display = 'none';
-        }
-      });
-    </script>
+  // Mantener sesión activa y actualizar la pantalla según el usuario
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      if (btnLogin) btnLogin.style.display = 'none';
+      if (userProfile) userProfile.style.display = 'flex';
+      if (userName) userName.textContent = user.displayName;
+      if (userPhoto) userPhoto.src = user.photoURL || 'https://via.placeholder.com/32';
+    } else {
+      if (btnLogin) btnLogin.style.display = 'inline-block';
+      if (userProfile) userProfile.style.display = 'none';
+    }
+  });
+</script>
 </body>
 </html>
