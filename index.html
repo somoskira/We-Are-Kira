@@ -729,10 +729,10 @@ document.addEventListener("DOMContentLoaded", function() {
   document.addEventListener('click', activarMusica);
   document.addEventListener('touchstart', activarMusica);
 </script>
-  <!-- === PARTE 2: FIRESTORE + FIX DESLIZAMIENTO EN MÓVIL + NOTIFICACIONES === -->
+  <!-- === PARTE 2: LOGIN CON SELECTOR DE CUENTAS FLOTANTE + CHAT WHATSAPP + NO RECARGAR MÓVIL === -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
   import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -748,6 +748,7 @@ document.addEventListener("DOMContentLoaded", function() {
   const auth = getAuth(app);
   const db = getFirestore(app);
 
+  // CONFIGURACIÓN PARA MOSTRAR LA LISTA DE CUENTAS GUARDADAS EN TELÉFONO Y PC
   const provider = new GoogleAuthProvider();
   provider.setCustomParameters({
     prompt: 'select_account'
@@ -757,8 +758,6 @@ document.addEventListener("DOMContentLoaded", function() {
   window.db = db;
   window.provider = provider;
   window.signInWithPopup = signInWithPopup;
-  window.signInWithRedirect = signInWithRedirect;
-  window.getRedirectResult = getRedirectResult;
   window.signOut = signOut;
   window.onAuthStateChanged = onAuthStateChanged;
   window.addDoc = addDoc;
@@ -773,17 +772,10 @@ document.addEventListener("DOMContentLoaded", function() {
   let usuarioActual = null;
   let esPrimeraCarga = true;
 
-  function esAppOMovil() {
-    return /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-  }
-
+  // Login forzado por Popup flotante tanto en PC como en Teléfono
   async function loginConGoogle() {
     try {
-      if (esAppOMovil()) {
-        await window.signInWithRedirect(window.auth, window.provider);
-      } else {
-        await window.signInWithPopup(window.auth, window.provider);
-      }
+      await window.signInWithPopup(window.auth, window.provider);
     } catch (error) {
       console.error("Error al iniciar sesión:", error);
     }
@@ -793,20 +785,13 @@ document.addEventListener("DOMContentLoaded", function() {
     window.signOut(window.auth);
   }
 
-  // Solicitar permiso de notificaciones al navegador/teléfono
   function solicitarPermisoNotificaciones() {
     if ("Notification" in window && Notification.permission !== "granted") {
       Notification.requestPermission();
     }
   }
 
-  window.addEventListener('load', async () => {
-    try {
-      await window.getRedirectResult(window.auth);
-    } catch (err) {
-      console.error("Error resultado redirección:", err);
-    }
-
+  window.addEventListener('load', () => {
     window.onAuthStateChanged(window.auth, (user) => {
       const modal = document.getElementById("modalLogin");
       const chatContainer = document.getElementById("chat-container");
@@ -827,7 +812,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   });
 
-  // Solución técnica para evitar recargar la página en móviles al deslizar el chat
+  // Evita que el teléfono recargue la página al deslizar los comentarios antiguos
   function aplicarFixDeslizamientoMovil() {
     const box = document.getElementById("chatBox");
     if (box) {
@@ -889,7 +874,6 @@ document.addEventListener("DOMContentLoaded", function() {
         `;
       });
 
-      // Notificación de mensajes nuevos si no son propios y no es la primera carga masiva
       if (!snap.empty && !esPrimeraCarga) {
         const ultimoDoc = snap.docs[snap.docs.length - 1].data();
         const miUid = window.auth.currentUser ? window.auth.currentUser.uid : "";
