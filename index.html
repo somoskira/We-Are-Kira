@@ -729,7 +729,7 @@ document.addEventListener("DOMContentLoaded", function() {
   document.addEventListener('click', activarMusica);
   document.addEventListener('touchstart', activarMusica);
 </script>
-  <!-- === PARTE 2: LÓGICA FIREBASE OPTIMIZADA (SELECTOR DE CUENTAS + CHAT DERECHA/IZQUIERDA) === -->
+  <!-- === PARTE 2: FIRESTORE + FIX DESLIZAMIENTO EN MÓVIL + NOTIFICACIONES === -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
@@ -748,7 +748,6 @@ document.addEventListener("DOMContentLoaded", function() {
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  // Configuración para forzar el selector de cuentas registradas en el teléfono/PC
   const provider = new GoogleAuthProvider();
   provider.setCustomParameters({
     prompt: 'select_account'
@@ -772,6 +771,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 <script>
   let usuarioActual = null;
+  let esPrimeraCarga = true;
 
   function esAppOMovil() {
     return /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -793,11 +793,18 @@ document.addEventListener("DOMContentLoaded", function() {
     window.signOut(window.auth);
   }
 
+  // Solicitar permiso de notificaciones al navegador/teléfono
+  function solicitarPermisoNotificaciones() {
+    if ("Notification" in window && Notification.permission !== "granted") {
+      Notification.requestPermission();
+    }
+  }
+
   window.addEventListener('load', async () => {
     try {
       await window.getRedirectResult(window.auth);
     } catch (err) {
-      console.error("Error en resultado de redirección:", err);
+      console.error("Error resultado redirección:", err);
     }
 
     window.onAuthStateChanged(window.auth, (user) => {
@@ -808,6 +815,9 @@ document.addEventListener("DOMContentLoaded", function() {
         usuarioActual = user;
         if (modal) modal.style.display = "none";
         if (chatContainer) chatContainer.style.display = "block";
+        
+        solicitarPermisoNotificaciones();
+        aplicarFixDeslizamientoMovil();
         cargarChatEstiloWhatsApp();
       } else {
         usuarioActual = null;
@@ -817,7 +827,16 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   });
 
-  // Asigna un color distintivo según el UID de cada usuario
+  // Solución técnica para evitar recargar la página en móviles al deslizar el chat
+  function aplicarFixDeslizamientoMovil() {
+    const box = document.getElementById("chatBox");
+    if (box) {
+      box.style.overscrollBehaviorY = "contain";
+      box.style.touchAction = "pan-y";
+      box.style.webkitOverflowScrolling = "touch";
+    }
+  }
+
   function obtenerColorUsuario(uid) {
     let hash = 0;
     for (let i = 0; i < uid.length; i++) {
@@ -827,8 +846,18 @@ document.addEventListener("DOMContentLoaded", function() {
     return "#" + "00000".substring(0, 6 - color.length) + color;
   }
 
+  function lanzarNotificacion(usuario, texto) {
+    if ("Notification" in window && Notification.permission === "granted") {
+      new Notification(`💬 Nuevo mensaje de ${usuario}`, {
+        body: texto,
+        icon: "https://via.placeholder.com/128/00ff00/000000?text=Kira"
+      });
+    }
+  }
+
   function cargarChatEstiloWhatsApp() {
     const qChat = window.query(window.collection(window.db, "mensajes_portada"), window.orderBy("fecha", "asc"));
+    
     window.onSnapshot(qChat, (snap) => {
       const box = document.getElementById("chatBox");
       if (!box) return;
@@ -859,6 +888,17 @@ document.addEventListener("DOMContentLoaded", function() {
           </div>
         `;
       });
+
+      // Notificación de mensajes nuevos si no son propios y no es la primera carga masiva
+      if (!snap.empty && !esPrimeraCarga) {
+        const ultimoDoc = snap.docs[snap.docs.length - 1].data();
+        const miUid = window.auth.currentUser ? window.auth.currentUser.uid : "";
+        if (ultimoDoc.uid !== miUid) {
+          lanzarNotificacion(ultimoDoc.usuario, ultimoDoc.texto);
+        }
+      }
+
+      esPrimeraCarga = false;
       box.scrollTop = box.scrollHeight;
     });
   }
