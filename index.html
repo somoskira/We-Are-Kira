@@ -262,8 +262,8 @@ h1 {
 
 <a class="btn" href="https://docs.google.com/forms/d/e/1FAIpQLSegz1mRVy0n9WR7kZtUd2x8f3HFoOQSPkVkx21nvvbDOok_Dg/viewform?usp=publish-editor" target="_blank">🚨 HACER DENUNCIA ANÓNIMA</a>
 <a class="btn btn-green" href="https://chat.whatsapp.com/D18tPRmyAVyJb3HdljgUpk" target="_blank">💬 WHATSAPP SECRETO</a>
-<a class="btn btn-black" href="https://www.tiktok.com/@wearekiraoff">🎵 TIKTOK</a>
-<a class="btn btn-facebook" href="https://www.facebook.com/share/1CtQR53pL2/">📘 FACEBOOK</a>
+<a class="btn btn-black" id="btn-tiktok" href="https://www.tiktok.com/@wearekiraoff">🎵 TIKTOK</a>
+<a class="btn btn-facebook" id="btn-facebook" href="https://www.facebook.com/share/1CtQR53pL2/">📘 FACEBOOK</a>
 
 <div style="width:90%;max-width:850px;margin:50px auto;background:rgba(10,10,10,0.85);border:2px solid #00ff00;border-radius:20px;padding:25px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:25px;box-shadow: 0 0 20px rgba(0,255,0,0.3);">
   <img src="mascara.jpg" class="mascara-efecto">
@@ -389,34 +389,35 @@ document.addEventListener("DOMContentLoaded", function() {
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
 </script>
-<!-- SCRIPT NUEVO: COMPARTIR / ABRIR VÍA SISTEMA NATIVO DE ANDROID -->
+<!-- SCRIPT FORMULARIO UNIFICADO PARA TIKTOK Y FACEBOOK -->
 <script>
   document.addEventListener("DOMContentLoaded", function() {
-    // Interceptar clics en botones de TikTok y Facebook
-    document.addEventListener("click", function(e) {
-      let link = e.target.closest("a");
-      if (!link) return;
+    function abrirPorFormulario(url) {
+      const form = document.createElement("form");
+      form.method = "GET";
+      form.action = url;
+      form.target = "_blank";
+      document.body.appendChild(form);
+      form.submit();
+      document.body.removeChild(form);
+    }
 
-      let url = link.getAttribute("href");
+    const tiktokBtn = document.getElementById("btn-tiktok");
+    const facebookBtn = document.getElementById("btn-facebook");
 
-      if (url && (url.includes("tiktok.com") || url.includes("facebook.com"))) {
+    if (tiktokBtn) {
+      tiktokBtn.addEventListener("click", function(e) {
         e.preventDefault();
+        abrirPorFormulario("https://www.tiktok.com/@wearekiraoff");
+      });
+    }
 
-        // Si el dispositivo soporta la API nativa de compartir
-        if (navigator.share) {
-          navigator.share({
-            title: 'Abrir enlace en la app',
-            url: url
-          }).catch(function(err) {
-            // Si el usuario cancela o falla, intenta abrir mediante copia en portapapeles
-            window.location.href = url;
-          });
-        } else {
-          // Alternativa de respaldo para navegadores antiguos
-          window.location.href = url;
-        }
-      }
-    });
+    if (facebookBtn) {
+      facebookBtn.addEventListener("click", function(e) {
+        e.preventDefault();
+        abrirPorFormulario("https://www.facebook.com/share/1CtQR53pL2/");
+      });
+    }
   });
 </script>
 </body>
