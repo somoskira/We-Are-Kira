@@ -420,180 +420,267 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   });
 </script>
-    <!-- ================= MODAL DEL JUEGO PLATAFORMAS 2D ================= -->
-<div id="modal-juego" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); z-index: 9999; justify-content: center; align-items: center; padding: 10px;">
-  <div class="terminal-container" style="max-width: 380px; width: 100%; padding: 15px; text-align: center; position: relative; margin: 0 auto;">
+ <!-- ================= MODAL JUEGO PAC-MAN FRANCO VIDAL ================= -->
+<div id="modal-juego" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); z-index: 9999; justify-content: center; align-items: center; padding: 10px; box-sizing: border-box;">
+  <div class="terminal-container" style="max-width: 95%; width: 450px; padding: 12px; text-align: center; position: relative; margin: 0 auto; border: 2px solid #00ff00; box-shadow: 0 0 25px rgba(0,255,0,0.5);">
     
     <!-- Botón para cerrar -->
-    <button onclick="cerrarModalJuego()" style="position: absolute; top: 10px; right: 15px; background: red; color: #fff; border: none; font-weight: bold; padding: 5px 10px; border-radius: 5px; cursor: pointer;">✕ CERRAR</button>
+    <button onclick="cerrarModalJuego()" style="position: absolute; top: 8px; right: 12px; background: #ff0055; color: #fff; border: none; font-weight: bold; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-family: 'Orbitron', sans-serif; z-index: 10000;">✕ CERRAR</button>
 
-    <div class="terminal-header" style="margin-bottom: 10px;">
+    <div class="terminal-header" style="margin-bottom: 8px;">
       <span class="terminal-dot"></span>
-      <span>SIMULADOR // KIRA PLATFORMS 2D</span>
+      <span>PAC-KIRA // FRANCO VIDAL EDITION</span>
     </div>
 
-    <h2 style="color: #00ff00; font-size: 16px; margin: 10px 0; text-shadow: 0 0 8px #00ff00;">
-      🕹️ ESCAPA DEL FIREWALL
-    </h2>
-
-    <canvas id="marioCanvas" width="320" height="170" style="background: #030803; border: 2px solid #00ff00; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 255, 0, 0.4); touch-action: manipulation;"></canvas>
-
-    <!-- Controles táctiles -->
-    <div style="display: flex; justify-content: center; gap: 10px; margin-top: 10px;">
-      <button ontouchstart="moverIzquierda()" onmousedown="moverIzquierda()" ontouchend="detenerMovimiento()" onmouseup="detenerMovimiento()" style="background: #111; color: #00ff00; border: 1px solid #00ff00; padding: 8px 15px; font-family: 'Orbitron', sans-serif; font-weight: bold;">◀ IZQ</button>
-      <button ontouchstart="saltarMario()" onmousedown="saltarMario()" style="background: #111; color: #00ff00; border: 1px solid #00ff00; padding: 8px 15px; font-family: 'Orbitron', sans-serif; font-weight: bold;">▲ SALTO</button>
-      <button ontouchstart="moverDerecha()" onmousedown="moverDerecha()" ontouchend="detenerMovimiento()" onmouseup="detenerMovimiento()" style="background: #111; color: #00ff00; border: 1px solid #00ff00; padding: 8px 15px; font-family: 'Orbitron', sans-serif; font-weight: bold;">DER ▶</button>
+    <!-- Info de Nivel y Puntaje -->
+    <div style="display: flex; justify-content: space-around; margin: 5px 0; color: #00ff00; font-family: 'Share Tech Mono', monospace; font-size: 14px;">
+      <span>NIVEL: <b id="pacNivel" style="color:#00ffff;">1</b></span>
+      <span>PUNTOS: <b id="pacPuntos" style="color:#fff;">0</b></span>
     </div>
 
-    <div style="margin-top: 8px;">
-      <span style="color: #00ff00; font-family: 'Share Tech Mono', monospace; font-size: 13px;">
-        ESTADO: <b id="marioStatus" style="color: #fff;">INFILTRÁNDOSE...</b>
+    <!-- Lienzo del Laberinto -->
+    <div style="width: 100%; overflow: hidden; display: flex; justify-content: center;">
+      <canvas id="pacCanvas" width="320" height="320" style="background: #000; border: 2px solid #00ff00; border-radius: 8px; box-shadow: 0 0 15px rgba(0, 255, 0, 0.4); touch-action: manipulation;"></canvas>
+    </div>
+
+    <!-- Cruceta táctil para celular -->
+    <div style="display: grid; grid-template-columns: repeat(3, 50px); gap: 5px; justify-content: center; margin-top: 10px;">
+      <div></div>
+      <button onclick="cambiarDir(0, -1)" style="background: #111; color: #00ff00; border: 1px solid #00ff00; padding: 10px; font-family: 'Orbitron', sans-serif; font-size: 16px; font-weight: bold; border-radius: 5px;">▲</button>
+      <div></div>
+      
+      <button onclick="cambiarDir(-1, 0)" style="background: #111; color: #00ff00; border: 1px solid #00ff00; padding: 10px; font-family: 'Orbitron', sans-serif; font-size: 16px; font-weight: bold; border-radius: 5px;">◀</button>
+      <button onclick="reiniciarPacman()" style="background: #222; color: #fff; border: 1px solid #444; font-size: 10px; border-radius: 5px;">🔄</button>
+      <button onclick="cambiarDir(1, 0)" style="background: #111; color: #00ff00; border: 1px solid #00ff00; padding: 10px; font-family: 'Orbitron', sans-serif; font-size: 16px; font-weight: bold; border-radius: 5px;">▶</button>
+      
+      <div></div>
+      <button onclick="cambiarDir(0, 1)" style="background: #111; color: #00ff00; border: 1px solid #00ff00; padding: 10px; font-family: 'Orbitron', sans-serif; font-size: 16px; font-weight: bold; border-radius: 5px;">▼</button>
+      <div></div>
+    </div>
+
+    <div style="margin-top: 5px;">
+      <span style="color: #00ff00; font-family: 'Share Tech Mono', monospace; font-size: 12px;">
+        ESTADO: <b id="pacStatus" style="color: #fff;">INICIANDO NODO...</b>
       </span>
     </div>
-
-    <button onclick="reiniciarMario()" class="btn" style="width: auto; margin: 8px auto 0; padding: 5px 15px; display: inline-block; font-size: 11px;">
-      🔄 REINICIAR
-    </button>
   </div>
 </div>
 
-<!-- LÓGICA DEL JUEGO -->
+<!-- LÓGICA PAC-MAN FRANCO VIDAL -->
 <script>
-  const mCanvas = document.getElementById("marioCanvas");
-  const mCtx = mCanvas.getContext("2d");
+  const pCanvas = document.getElementById("pacCanvas");
+  const pCtx = pCanvas.getContext("2d");
 
-  let mPlayer = { x: 20, y: 110, w: 14, h: 18, vx: 0, vy: 0, speed: 2.2, jumpPower: -7.5, gravity: 0.45, grounded: false };
-  let plataformas = [
-    { x: 0, y: 140, w: 350, h: 30 },
-    { x: 75, y: 105, w: 55, h: 10 },
-    { x: 160, y: 70, w: 55, h: 10 },
-    { x: 245, y: 105, w: 65, h: 10 }
-  ];
-  let obstaculosMario = [
-    { x: 95, y: 93, w: 12, h: 12 },
-    { x: 180, y: 58, w: 12, h: 12 }
-  ];
-  let meta = { x: 265, y: 75, w: 15, h: 30 };
+  // Imagen de Franco Vidal
+  const francoImg = new Image();
+  francoImg.src = "franco.png"; // Carga la imagen de GitHub
 
-  let mKeys = {};
-  let juegoTerminado = false;
-  let juegoGanado = false;
-  let animId;
+  const tileSize = 20;
+  const gridRows = 16;
+  const gridCols = 16;
+
+  // Mapa del laberinto (1: Pared, 0: Punto, 2: Vacío)
+  let baseMap = [
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,0,0,0,0,0,1,1,0,0,0,0,0,0,0,1],
+    [1,0,1,1,1,0,1,1,0,1,1,1,1,1,0,1],
+    [1,0,1,2,1,0,0,0,0,1,2,2,2,1,0,1],
+    [1,0,1,1,1,0,1,1,0,1,1,1,1,1,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,1,1,0,1,1,2,2,1,1,0,1,1,0,1],
+    [1,0,0,0,0,1,2,2,2,2,1,0,0,0,0,1],
+    [1,0,1,1,0,1,1,1,1,1,1,0,1,1,0,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,1,1,1,0,1,1,0,1,1,1,1,1,0,1],
+    [1,0,1,2,1,0,0,0,0,1,2,2,2,1,0,1],
+    [1,0,1,1,1,0,1,1,0,1,1,1,1,1,0,1],
+    [1,0,0,0,0,0,1,1,0,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+  ];
+
+  let map = [];
+  let pacX = 1, pacY = 1;
+  let dirX = 0, dirY = 0;
+  let nextDirX = 0, nextDirY = 0;
+  
+  let nivel = 1;
+  let puntos = 0;
+  let puntosRestantes = 0;
+  let pacAnimId;
+
+  // Fantasmas
+  let ghosts = [];
+  const ghostColors = ["#ff0055", "#00ffff", "#ff9900", "#ff00ff"];
+
+  function initMap() {
+    map = JSON.parse(JSON.stringify(baseMap));
+    puntosRestantes = 0;
+    for (let r = 0; r < gridRows; r++) {
+      for (let c = 0; c < gridCols; c++) {
+        if (map[r][c] === 0) puntosRestantes++;
+      }
+    }
+  }
+
+  function initGhosts() {
+    ghosts = [
+      { x: 7, y: 7, dirX: 1, dirY: 0, color: ghostColors[0] },
+      { x: 8, y: 7, dirX: -1, dirY: 0, color: ghostColors[1] },
+      { x: 7, y: 8, dirX: 0, dirY: 1, color: ghostColors[2] },
+      { x: 8, y: 8, dirX: 0, dirY: -1, color: ghostColors[3] }
+    ];
+  }
 
   function abrirModalJuego() {
     document.getElementById("modal-juego").style.display = "flex";
-    reiniciarMario();
+    nivel = 1;
+    puntos = 0;
+    reiniciarPacman();
   }
 
   function cerrarModalJuego() {
     document.getElementById("modal-juego").style.display = "none";
-    cancelAnimationFrame(animId);
+    clearInterval(pacAnimId);
+  }
+
+  function cambiarDir(dx, dy) {
+    nextDirX = dx;
+    nextDirY = dy;
   }
 
   window.addEventListener("keydown", function(e) {
-    if(["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].indexOf(e.code) > -1) {
-      if(document.getElementById("modal-juego").style.display === "flex") e.preventDefault();
+    if (document.getElementById("modal-juego").style.display === "flex") {
+      if (e.code === "ArrowUp") cambiarDir(0, -1);
+      if (e.code === "ArrowDown") cambiarDir(0, 1);
+      if (e.code === "ArrowLeft") cambiarDir(-1, 0);
+      if (e.code === "ArrowRight") cambiarDir(1, 0);
     }
-    mKeys[e.code] = true;
-    if (e.code === "Space" || e.code === "ArrowUp") saltarMario();
   });
 
-  window.addEventListener("keyup", function(e) { mKeys[e.code] = false; });
-
-  function moverIzquierda() { mPlayer.vx = -mPlayer.speed; }
-  function moverDerecha() { mPlayer.vx = mPlayer.speed; }
-  function detenerMovimiento() { mPlayer.vx = 0; }
-
-  function saltarMario() {
-    if (juegoTerminado || juegoGanado) { reiniciarMario(); return; }
-    if (mPlayer.grounded) { mPlayer.vy = mPlayer.jumpPower; mPlayer.grounded = false; }
-  }
-
-  function actualizarMario() {
-    if (juegoTerminado || juegoGanado) return;
-
-    if (mKeys["ArrowLeft"] || mKeys["KeyA"]) mPlayer.vx = -mPlayer.speed;
-    else if (mKeys["ArrowRight"] || mKeys["KeyD"]) mPlayer.vx = mPlayer.speed;
-
-    mPlayer.x += mPlayer.vx;
-    if (mPlayer.x < 0) mPlayer.x = 0;
-    if (mPlayer.x > mCanvas.width - mPlayer.w) mPlayer.x = mCanvas.width - mPlayer.w;
-
-    mPlayer.vy += mPlayer.gravity;
-    mPlayer.y += mPlayer.vy;
-    mPlayer.grounded = false;
-
-    for (let p of plataformas) {
-      if (
-        mPlayer.x < p.x + p.w &&
-        mPlayer.x + mPlayer.w > p.x &&
-        mPlayer.y + mPlayer.h >= p.y &&
-        mPlayer.y + mPlayer.h <= p.y + 10 &&
-        mPlayer.vy >= 0
-      ) {
-        mPlayer.y = p.y - mPlayer.h;
-        mPlayer.vy = 0;
-        mPlayer.grounded = true;
+  function updatePacman() {
+    // Intentar cambiar de dirección si no hay pared
+    if (nextDirX !== 0 || nextDirY !== 0) {
+      if (map[pacY + nextDirY][pacX + nextDirX] !== 1) {
+        dirX = nextDirX;
+        dirY = nextDirY;
       }
     }
 
-    for (let o of obstaculosMario) {
-      if (
-        mPlayer.x < o.x + o.w &&
-        mPlayer.x + mPlayer.w > o.x &&
-        mPlayer.y < o.y + o.h &&
-        mPlayer.y + mPlayer.h > o.y
-      ) {
-        juegoTerminado = true;
-        document.getElementById("marioStatus").innerHTML = "<span style='color:red;'>SYSTEM OVERLOAD // FIREWALL</span>";
+    // Mover Franco Vidal
+    if (map[pacY + dirY][pacX + dirX] !== 1) {
+      pacX += dirX;
+      pacY += dirY;
+    }
+
+    // Comer punto
+    if (map[pacY][pacX] === 0) {
+      map[pacY][pacX] = 2;
+      puntos += 10;
+      puntosRestantes--;
+      document.getElementById("pacPuntos").textContent = puntos;
+    }
+
+    // Pasar de nivel al comer todos los puntos
+    if (puntosRestantes <= 0) {
+      nivel++;
+      document.getElementById("pacNivel").textContent = nivel;
+      document.getElementById("pacStatus").innerHTML = "<span style='color:#00ff00;'>¡NIVEL " + nivel + " DESBLOQUEADO!</span>";
+      reiniciarPosiciones();
+      return;
+    }
+
+    // Mover Fantasmas
+    for (let g of ghosts) {
+      let posibles = [];
+      let dirs = [{x: 0, y: -1}, {x: 0, y: 1}, {x: -1, y: 0}, {x: 1, y: 0}];
+      
+      for (let d of dirs) {
+        if (map[g.y + d.y][g.x + d.x] !== 1) {
+          posibles.push(d);
+        }
+      }
+
+      if (posibles.length > 0) {
+        // En niveles altos persiguen más a Franco Vidal
+        if (Math.random() < 0.3 + (nivel * 0.1)) {
+          posibles.sort((a,b) => {
+            let distA = Math.hypot((g.x + a.x) - pacX, (g.y + a.y) - pacY);
+            let distB = Math.hypot((g.x + b.x) - pacX, (g.y + b.y) - pacY);
+            return distA - distB;
+          });
+        }
+        let elegida = posibles[0];
+        g.x += elegida.x;
+        g.y += elegida.y;
+      }
+
+      // Colisión con Fantasma
+      if (g.x === pacX && g.y === pacY) {
+        document.getElementById("pacStatus").innerHTML = "<span style='color:red;'>¡CAPTURADO POR EL FIREWALL!</span>";
+        clearInterval(pacAnimId);
+        return;
       }
     }
 
-    if (
-      mPlayer.x < meta.x + meta.w &&
-      mPlayer.x + mPlayer.w > meta.x &&
-      mPlayer.y < meta.y + meta.h &&
-      mPlayer.y + mPlayer.h > meta.y
-    ) {
-      juegoGanado = true;
-      document.getElementById("marioStatus").innerHTML = "<span style='color:#00ff00;'>¡ACCESO LOGRADO!</span>";
-    }
-
-    if (mPlayer.y > mCanvas.height) {
-      juegoTerminado = true;
-      document.getElementById("marioStatus").innerHTML = "<span style='color:red;'>CONEXIÓN PERDIDA</span>";
-    }
-
-    dibujarMario();
-    animId = requestAnimationFrame(actualizarMario);
+    drawPacman();
   }
 
-  function dibujarMario() {
-    mCtx.clearRect(0, 0, mCanvas.width, mCanvas.height);
+  function drawPacman() {
+    pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
 
-    mCtx.fillStyle = "#004400";
-    mCtx.strokeStyle = "#00ff00";
-    for (let p of plataformas) {
-      mCtx.fillRect(p.x, p.y, p.w, p.h);
-      mCtx.strokeRect(p.x, p.y, p.w, p.h);
+    // Dibujar Laberinto
+    for (let r = 0; r < gridRows; r++) {
+      for (let c = 0; c < gridCols; c++) {
+        if (map[r][c] === 1) {
+          pCtx.fillStyle = "#004400";
+          pCtx.strokeStyle = "#00ff00";
+          pCtx.fillRect(c * tileSize, r * tileSize, tileSize, tileSize);
+          pCtx.strokeRect(c * tileSize, r * tileSize, tileSize, tileSize);
+        } else if (map[r][c] === 0) {
+          pCtx.fillStyle = "#00ff00";
+          pCtx.beginPath();
+          pCtx.arc(c * tileSize + tileSize/2, r * tileSize + tileSize/2, 3, 0, Math.PI * 2);
+          pCtx.fill();
+        }
+      }
     }
 
-    mCtx.fillStyle = "#ff0055";
-    for (let o of obstaculosMario) mCtx.fillRect(o.x, o.y, o.w, o.h);
+    // Dibujar Fantasmas
+    for (let g of ghosts) {
+      pCtx.fillStyle = g.color;
+      pCtx.beginPath();
+      pCtx.arc(g.x * tileSize + tileSize/2, g.y * tileSize + tileSize/2, tileSize/2 - 2, 0, Math.PI * 2);
+      pCtx.fill();
+    }
 
-    mCtx.fillStyle = "#00ffff";
-    mCtx.fillRect(meta.x, meta.y, meta.w, meta.h);
-
-    mCtx.fillStyle = "#00ff00";
-    mCtx.fillRect(mPlayer.x, mPlayer.y, mPlayer.w, mPlayer.h);
+    // Dibujar a Franco Vidal
+    if (francoImg.complete && francoImg.naturalWidth !== 0) {
+      pCtx.drawImage(francoImg, pacX * tileSize, pacY * tileSize, tileSize, tileSize);
+    } else {
+      // Por si la imagen no carga, dibuja círculo amarillo
+      pCtx.fillStyle = "#ffff00";
+      pCtx.beginPath();
+      pCtx.arc(pacX * tileSize + tileSize/2, pacY * tileSize + tileSize/2, tileSize/2 - 1, 0, Math.PI * 2);
+      pCtx.fill();
+    }
   }
 
-  function reiniciarMario() {
-    mPlayer = { x: 20, y: 110, w: 14, h: 18, vx: 0, vy: 0, speed: 2.2, jumpPower: -7.5, gravity: 0.45, grounded: false };
-    juegoTerminado = false;
-    juegoGanado = false;
-    document.getElementById("marioStatus").textContent = "INFILTRÁNDOSE...";
-    actualizarMario();
+  function reiniciarPosiciones() {
+    initMap();
+    initGhosts();
+    pacX = 1; pacY = 1;
+    dirX = 0; dirY = 0;
+    nextDirX = 0; nextDirY = 0;
+  }
+
+  function reiniciarPacman() {
+    clearInterval(pacAnimId);
+    reiniciarPosiciones();
+    document.getElementById("pacStatus").textContent = "NODO EN EJECUCIÓN...";
+    // Velocidad aumenta según el nivel
+    let speed = Math.max(120, 250 - (nivel * 20));
+    pacAnimId = setInterval(updatePacman, speed);
   }
 </script>
 </body>
