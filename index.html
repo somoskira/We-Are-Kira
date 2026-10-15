@@ -241,20 +241,30 @@ h1 {
 </style>
 </head>
 <body>
-<!-- === INICIO: CHAT EN VIVO === -->
-<div id="chat-container" style="max-width: 500px; margin: 20px auto; padding: 15px; background: rgba(8, 15, 8, 0.98); border: 2px solid #00ff00; border-radius: 12px; box-shadow: 0 0 20px rgba(0,255,0,0.3); color: #00ff00; font-family: 'Share Tech Mono', monospace;">
-  <h3 style="margin-top: 0; text-align: center; font-size: 15px; text-shadow: 0 0 8px #00ff00;">💬 CHAT EN VIVO</h3>
+<!-- === INICIO: LOGIN Y CHAT DE USUARIOS === -->
+<div id="modalLogin" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #030803; z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center;">
+  <h2 style="font-family:'Orbitron', sans-serif; font-size: 16px; color:#00ff00; margin-bottom: 5px;">WE ARE KIRA</h2>
+  <p style="font-size: 11px; color: #aaa; max-width: 280px; font-family: 'Share Tech Mono', monospace;">Inicia sesión con Google para entrar al chat en vivo.</p>
+  <button onclick="loginConGoogle()" style="background: #ffffff; color: #333; border: none; padding: 12px 20px; font-family: 'Orbitron', sans-serif; font-weight: bold; font-size: 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; max-width: 280px; margin-top: 15px;">
+    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18">
+    CONTINUAR CON GOOGLE
+  </button>
+</div>
+
+<div id="chat-container" style="max-width: 500px; margin: 20px auto; padding: 15px; background: rgba(8, 15, 8, 0.98); border: 2px solid #00ff00; border-radius: 12px; box-shadow: 0 0 20px rgba(0,255,0,0.3); color: #00ff00; font-family: 'Share Tech Mono', monospace; display: none;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+    <h3 style="margin: 0; font-size: 14px;">💬 CHAT EN VIVO</h3>
+    <button onclick="cerrarSesionUsuario()" style="background: none; border: none; color: #ff0055; font-family: inherit; font-size: 10px; cursor: pointer;">[Cerrar Sesión]</button>
+  </div>
   
-  <!-- Ventana de Mensajes -->
-  <div id="chatBox" style="height: 220px; overflow-y: auto; border: 1px solid #004400; background: #000; padding: 10px; margin-bottom: 10px; border-radius: 8px;"></div>
+  <div id="chatBox" style="height: 220px; overflow-y: auto; border: 1px solid #004400; background: #000; padding: 10px; margin-bottom: 8px; border-radius: 8px;"></div>
   
-  <!-- Formulario de Envío -->
   <div style="display: flex; gap: 5px;">
     <input type="text" id="chatInput" placeholder="Escribe un mensaje..." style="flex: 1; background: #000; border: 1px solid #00ff00; color: #00ff00; padding: 8px; border-radius: 6px; font-family: inherit;">
     <button onclick="enviarMensajeChat()" style="background: #00ff00; color: #000; border: none; padding: 8px 15px; font-weight: bold; border-radius: 6px; cursor: pointer; font-family: inherit;">ENVIAR</button>
   </div>
 </div>
-<!-- === FIN: CHAT EN VIVO === -->
+<!-- === FIN: LOGIN Y CHAT DE USUARIOS === -->
 
 <img src="portada.jpg" class="portada">
 <img src="perfil.jpg" class="perfil">
@@ -719,13 +729,12 @@ document.addEventListener("DOMContentLoaded", function() {
   document.addEventListener('click', activarMusica);
   document.addEventListener('touchstart', activarMusica);
 </script>
-    <!-- === INICIO: LÓGICA DEL CHAT EN VIVO === -->
+    <!-- === INICIO: LÓGICA FIREBASE === -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-  import { getAuth } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
   import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
-  // Configuración con las credenciales de tu proyecto
   const firebaseConfig = {
     apiKey: "AIzaSyDI01O2nUFYS1s9zRHpf3-IQs79ucceSUU",
     authDomain: "dibujitos-77f10.firebaseapp.com",
@@ -738,19 +747,56 @@ document.addEventListener("DOMContentLoaded", function() {
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
+  const provider = new GoogleAuthProvider();
 
-  // Exponer a window para poder usarlos desde onclick
   window.auth = auth;
   window.db = db;
+  window.provider = provider;
+  window.signInWithPopup = signInWithPopup;
+  window.signOut = signOut;
+  window.onAuthStateChanged = onAuthStateChanged;
   window.addDoc = addDoc;
   window.collection = collection;
   window.query = query;
   window.orderBy = orderBy;
   window.onSnapshot = onSnapshot;
   window.serverTimestamp = serverTimestamp;
+</script>
 
-  // Cargar mensajes en tiempo real automáticamente al abrir la página
+<script>
+  let usuarioActual = null;
+
+  async function loginConGoogle() {
+    try {
+      await window.signInWithPopup(window.auth, window.provider);
+    } catch (error) {
+      alert("Error al iniciar sesión: " + error.message);
+    }
+  }
+
+  function cerrarSesionUsuario() {
+    window.signOut(window.auth);
+  }
+
   window.addEventListener('load', () => {
+    window.onAuthStateChanged(window.auth, (user) => {
+      const modal = document.getElementById("modalLogin");
+      const chatContainer = document.getElementById("chat-container");
+
+      if (user) {
+        usuarioActual = user;
+        if (modal) modal.style.display = "none";
+        if (chatContainer) chatContainer.style.display = "block";
+        cargarChatEstiloTarjetas();
+      } else {
+        usuarioActual = null;
+        if (modal) modal.style.display = "flex";
+        if (chatContainer) chatContainer.style.display = "none";
+      }
+    });
+  });
+
+  function cargarChatEstiloTarjetas() {
     const qChat = window.query(window.collection(window.db, "mensajes_portada"), window.orderBy("fecha", "asc"));
     window.onSnapshot(qChat, (snap) => {
       const box = document.getElementById("chatBox");
@@ -760,37 +806,32 @@ document.addEventListener("DOMContentLoaded", function() {
         const d = doc.data();
         box.innerHTML += `
           <div style="background: rgba(0, 255, 0, 0.03); border: 1px solid #004400; border-radius: 8px; padding: 8px; margin-bottom: 8px;">
-            <div style="font-size: 11px; color: #00ffff; font-weight: bold;">${d.usuario}</div>
-            <div style="font-size: 12px; color: #fff;">${d.texto}</div>
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+              <img src="${d.foto || 'https://via.placeholder.com/30'}" style="width: 28px; height: 28px; border-radius: 50%; border: 1px solid #00ff00; object-fit: cover;">
+              <div style="font-size: 11px; color: #00ffff; font-weight: bold;">${d.usuario}</div>
+            </div>
+            <div style="font-size: 12px; color: #fff; padding-left: 36px;">${d.texto}</div>
           </div>
         `;
       });
       box.scrollTop = box.scrollHeight;
     });
-  });
-</script>
+  }
 
-<script>
-  // Función global para enviar mensaje
   async function enviarMensajeChat() {
     const input = document.getElementById("chatInput");
     const txt = input.value.trim();
-    if (!txt) return;
+    if (!txt || !usuarioActual) return;
 
-    const user = window.auth.currentUser;
-
-    try {
-      await window.addDoc(window.collection(window.db, "mensajes_portada"), {
-        usuario: user ? (user.displayName || "Dibujito") : "Anónimo",
-        texto: txt,
-        fecha: window.serverTimestamp()
-      });
-      input.value = "";
-    } catch (error) {
-      console.error("Error al enviar mensaje:", error);
-    }
+    await window.addDoc(window.collection(window.db, "mensajes_portada"), {
+      usuario: usuarioActual.displayName || "Usuario",
+      foto: usuarioActual.photoURL || "",
+      texto: txt,
+      fecha: window.serverTimestamp()
+    });
+    input.value = "";
   }
 </script>
-<!-- === FIN: LÓGICA DEL CHAT EN VIVO === -->
+<!-- === FIN: LÓGICA FIREBASE === -->
 </body>
 </html>
