@@ -797,11 +797,10 @@ document.addEventListener("DOMContentLoaded", function() {
   }
 
   window.addEventListener('load', async () => {
-    // Procesa el resultado si viene de la redirección del celular
-    try {
+   try {
       await window.getRedirectResult(window.auth);
     } catch (err) {
-      console.error("Error al procesar redirección móvil:", err);
+      console.error("Error al procesar redirección:", err);
     }
 
     window.onAuthStateChanged(window.auth, (user) => {
