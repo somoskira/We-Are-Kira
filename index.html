@@ -37,7 +37,7 @@ h1{animation:verdeNeon 1.5s infinite alternate;color:#fff;text-shadow:0 0 10px #
 @keyframes verdeNeon{from{text-shadow:0 0 5px #fff,0 0 10px #00ff00,0 0 20px #00ff00}to{text-shadow:0 0 10px #fff,0 0 20px #00ff00,0 0 40px #00ff00,0 0 80px #00ff00}}
 
 /* LOGIN */
-.modal-login{position:fixed;inset:0;background:#030803;z-index:100;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px;text-align:center}
+.modal-login{position:fixed;inset:0;background:linear-gradient(rgba(0,0,0,.55),rgba(0,0,0,.7)),url('portada.jpg') center/cover no-repeat #030803;z-index:100;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px;text-align:center}
 .btn-google{background:#fff;color:#333;border:none;padding:12px 20px;font-family:'Orbitron',sans-serif;font-weight:bold;font-size:12px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;width:100%;max-width:280px;margin-top:15px}
 
 /* CHAT PROFESIONAL */
@@ -89,8 +89,9 @@ body.jugando>*:not(.modal-juego){visibility:hidden}
 
 <!-- LOGIN -->
 <div id="modalLogin" class="modal-login">
-  <h2 style="font-size:16px;color:#00ff00;margin-bottom:5px">WE ARE KIRA</h2>
-  <p style="font-size:11px;color:#aaa;max-width:280px">Inicia sesión con Google para entrar al chat en vivo.</p>
+  <img src="perfil.jpg" alt="" style="width:110px;height:110px;border-radius:50%;border:3px solid #00ff00;object-fit:cover;box-shadow:0 0 20px #00ff00;margin-bottom:15px">
+  <h2 style="font-size:16px;color:#00ff00;margin-bottom:5px;text-shadow:0 0 10px #00ff00">WE ARE KIRA</h2>
+  <p style="font-size:11px;color:#ddd;max-width:280px">Inicia sesión con Google para entrar al chat en vivo.</p>
   <button id="btnGoogle" class="btn-google"><img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" alt="">CONTINUAR CON GOOGLE</button>
 </div>
 
