@@ -733,13 +733,12 @@ document.addEventListener("DOMContentLoaded", function() {
   let usuarioActual = null;
   let esPrimeraCarga = true;
 
+  // Método limpio y directo que funcionaba al inicio
   async function loginConGoogle() {
     try {
-      // Forzar popup universal limpio
       await window.signInWithPopup(window.auth, window.provider);
     } catch (error) {
       console.error("Error al iniciar sesión:", error);
-      alert("Error al iniciar sesión. Asegúrate de no tener bloqueador de elementos emergentes.");
     }
   }
 
@@ -747,14 +746,7 @@ document.addEventListener("DOMContentLoaded", function() {
     window.signOut(window.auth);
   }
 
-  window.addEventListener('load', async () => {
-    // Captura el resultado de la redirección móvil de forma segura antes de evaluar el estado
-    try {
-      await window.getRedirectResult(window.auth);
-    } catch (err) {
-      console.error("Error al procesar redirección:", err);
-    }
-
+  window.addEventListener('load', () => {
     window.onAuthStateChanged(window.auth, (user) => {
       const modal = document.getElementById("modalLogin");
       const chatContainer = document.getElementById("chat-container");
@@ -777,6 +769,8 @@ document.addEventListener("DOMContentLoaded", function() {
   function aplicarFixDeslizamientoMovil() {
     const box = document.getElementById("chatBox");
     if (box) {
+      box.style.maxHeight = "350px";
+      box.style.overflowY = "auto";
       box.style.overscrollBehaviorY = "contain";
       box.style.touchAction = "pan-y";
       box.style.webkitOverflowScrolling = "touch";
