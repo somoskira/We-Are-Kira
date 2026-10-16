@@ -735,14 +735,11 @@ document.addEventListener("DOMContentLoaded", function() {
 
   async function loginConGoogle() {
     try {
-      const esMovil = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      if (esMovil) {
-        await window.signInWithRedirect(window.auth, window.provider);
-      } else {
-        await window.signInWithPopup(window.auth, window.provider);
-      }
+      // Forzar popup universal limpio
+      await window.signInWithPopup(window.auth, window.provider);
     } catch (error) {
       console.error("Error al iniciar sesión:", error);
+      alert("Error al iniciar sesión. Asegúrate de no tener bloqueador de elementos emergentes.");
     }
   }
 
