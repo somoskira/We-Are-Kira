@@ -780,16 +780,17 @@ document.addEventListener("DOMContentLoaded", function() {
 
   // Si es celular usa redirección optimizada, si es PC usa ventana emergente
   async function loginConGoogle() {
-    try {
-      if (esDispositivoMovil()) {
-        await window.signInWithRedirect(window.auth, window.provider);
-      } else {
-        await window.signInWithPopup(window.auth, window.provider);
-      }
-    } catch (error) {
-      console.error("Error al iniciar sesión:", error);
+  try {
+    const esMovil = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (esMovil) {
+      await window.signInWithRedirect(window.auth, window.provider);
+    } else {
+      await window.signInWithPopup(window.auth, window.provider);
     }
+  } catch (error) {
+    console.error("Error al iniciar sesión:", error);
   }
+}
 
   function cerrarSesionUsuario() {
     window.signOut(window.auth);
