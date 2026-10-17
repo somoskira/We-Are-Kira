@@ -8,6 +8,7 @@
 <style>
 [hidden]{display:none!important}
 html{overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;background:url('portada.jpg') center/cover no-repeat;opacity:.2;z-index:-1;pointer-events:none}
 body{margin:0;min-height:100vh;background:#000;color:#fff;font-family:'Share Tech Mono',monospace;text-align:center;position:relative}
 .perfil{width:160px;height:160px;border-radius:50%;border:4px solid #00ff00;margin:28px auto 15px;display:block;object-fit:cover;background:#000;animation:bordeVerde 2s infinite alternate}
 h1,h2,h3{font-family:'Orbitron',sans-serif;letter-spacing:2px}
@@ -124,11 +125,18 @@ h1{animation:verdeNeon 1.5s infinite alternate;color:#fff;text-shadow:0 0 10px #
 .sonido{left:10px;right:auto;background:#111;border:1px solid #00ff00}
 body.jugando *{animation:none!important}
 body.jugando>*:not(.modal-juego):not(.layout){visibility:hidden}
+.btn-apoyo{background:#111;color:#ffd23f;border-color:#ffd23f;box-shadow:0 0 12px rgba(255,210,63,.55),0 0 24px rgba(255,210,63,.3);animation:none;cursor:pointer}
+#apoyoModal{position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;padding:16px}
+#apoyoModal .caja{background:#0a0a0a;border:2px solid #ffd23f;border-radius:16px;padding:18px;max-width:340px;width:100%;text-align:center;box-shadow:0 0 25px rgba(255,210,63,.5)}
+#apoyoModal h3{margin:0 0 8px;color:#ffd23f}
+#apoyoModal img{width:100%;max-width:260px;background:#fff;padding:10px;border-radius:12px;display:block;margin:10px auto}
+#apoyoModal p{font-size:13px;color:#ccc;margin:6px 0}
+#apoyoModal button{margin-top:10px;background:#ffd23f;color:#000;border:none;border-radius:20px;padding:9px 22px;font:bold 12px 'Orbitron',sans-serif;cursor:pointer}
 /* ===== DISTRIBUCIÓN: móvil = una columna (mismo orden de siempre); PC = 3 columnas ===== */
 .layout{display:flex;flex-direction:column}
 .col-izq,.col-centro,.col-der{display:contents}
 .o1{order:1}.o2{order:2}.o3{order:3}.o4{order:4}.o5{order:5}.o6{order:6}.o7{order:7}.o8{order:8}.o9{order:9}.o10{order:10}
-@media(max-width:999px){body.jugando .layout{visibility:hidden}body.jugando #modal-juego{visibility:visible}}
+@media(max-width:999px){.cab{display:contents}body.jugando .layout{visibility:hidden}body.jugando #modal-juego{visibility:visible}}
 @media(min-width:1000px){
   .layout{display:grid;grid-template-columns:280px minmax(0,1fr) 420px;gap:18px;max-width:1600px;margin:0 auto;padding:14px 18px;align-items:start}
   .col-izq,.col-centro,.col-der{display:block;min-width:0}
@@ -136,7 +144,10 @@ body.jugando>*:not(.modal-juego):not(.layout){visibility:hidden}
   .col-izq .perfil{margin:6px auto 10px}
   .col-izq .btn{width:100%;max-width:none;margin:14px 0}
   .col-izq .acc,.col-der .rank{width:100%;max-width:none;margin:14px 0}
-  .col-centro h1{margin:10px 0 8px}
+  .cab{display:block;grid-column:1/-1;text-align:center}
+  .cab h1{white-space:nowrap;font-size:clamp(20px,2.7vw,42px);margin:10px 0 4px}
+  .cab p{margin:4px 0 10px}
+  body.jugando .cab{display:none}
   .col-centro .chat,.col-centro .terminal-container{width:100%;max-width:none;margin:14px 0}
   body.jugando .col-centro>:not(.modal-juego){display:none}
   #modal-juego{position:relative!important;inset:auto!important;left:auto!important;top:auto!important;right:auto!important;bottom:auto!important;width:100%!important;height:calc(100vh - 28px)!important;transform:none!important;z-index:1;margin:14px 0;border:1px solid #00ff00;border-radius:14px;overflow:hidden;box-shadow:0 0 20px rgba(0,255,0,.3)}
@@ -168,11 +179,16 @@ body.jugando>*:not(.modal-juego):not(.layout){visibility:hidden}
 
 
 <div class="layout">
+<div class="cab">
+<h1 class="o2">BIENVENIDO A LA COMUNIDAD DIBUJITOS</h1>
+<p class="o3" style="color:#aaa">FRANCO MI TECHO PE MANO.</p>
+</div>
 <div class="col-izq">
 <img src="perfil.jpg" class="perfil o1" alt="">
 <a class="btn o6" href="https://docs.google.com/forms/d/e/1FAIpQLSegz1mRVy0n9WR7kZtUd2x8f3HFoOQSPkVkx21nvvbDOok_Dg/viewform?usp=publish-editor" target="_blank">🚨 HACER DENUNCIA ANÓNIMA</a>
 <a class="btn btn-green o7" href="https://chat.whatsapp.com/D18tPRmyAVyJb3HdljgUpk" target="_blank">💬 WHATSAPP SECRETO</a>
 <button id="btnJuego" class="btn btn-juego o8">🎮 JUGAR</button>
+<button id="btnApoyo" class="btn btn-apoyo o8">☕ APÓYANOS</button>
 <details class="acc o10"><summary>🎭 LA MÁSCARA</summary><div class="acc-body" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:25px;padding-top:6px">
   <img src="mascara.jpg" class="mascara-efecto" alt="Máscara KIRA">
   <div style="flex:1;min-width:240px;text-align:left">
@@ -182,10 +198,9 @@ body.jugando>*:not(.modal-juego):not(.layout){visibility:hidden}
 </div></details>
 </div>
 <div class="col-centro">
-<h1 class="o2">BIENVENIDO A LA COMUNIDAD DIBUJITOS</h1>
-<p class="o3" style="color:#aaa">FRANCO MI TECHO PE MANO.</p>
+
 <div class="terminal-container o5">
-  <div class="terminal-header"><span class="terminal-dot"></span><span>TERMINAL_POOL // SECURE_NODE_01</span></div>
+  <div class="terminal-header"><span class="terminal-dot"></span><span>📢 PANEL DE ANUNCIOS</span></div>
   <div class="terminal-body"><span id="typed-text"></span><span class="cursor"></span></div>
 </div>
 <!-- CHAT EN VIVO -->
@@ -194,7 +209,7 @@ body.jugando>*:not(.modal-juego):not(.layout){visibility:hidden}
     <div class="chat-title"><span class="live"></span>DIBUJITOS SOCIAL <span id="enLinea" class="chat-on"></span></div>
     <div class="chat-me"><img id="meFoto" alt=""><span id="meNombre"></span><button id="btnNoti" title="Avisos de mensajes y reacciones">🔕</button><button id="btnAdmin" hidden title="Panel de administrador">🛡️ Admin</button><button id="btnSalir">Salir</button></div>
   </header>
-  <div id="adminPanel" class="chat-admin" hidden><b>📌 Anuncio fijo</b><div style="display:flex;gap:6px;margin:4px 0 8px"><input id="anInput" maxlength="160" placeholder="Texto del anuncio" style="flex:1;background:#000;color:#fff;border:1px solid #4a0a0a;border-radius:6px;padding:4px"><button id="anPub">Publicar</button><button id="anQuitar">Quitar</button></div><b>🚩 Reportes</b><div id="repLista"></div><b>🛡️ Usuarios silenciados</b><div id="silLista"></div></div>
+  <div id="adminPanel" class="chat-admin" hidden><b>📢 Panel de anuncios (una frase por línea, máx. 8)</b><div style="display:flex;gap:6px;margin:4px 0 8px"><textarea id="anInput" rows="4" maxlength="900" placeholder="Escribe aquí tus frases o avisos de la semana" style="flex:1;background:#000;color:#fff;border:1px solid #4a0a0a;border-radius:6px;padding:4px;font:inherit;resize:vertical"></textarea><button id="anPub">Publicar</button><button id="anQuitar">Quitar</button></div><b>🚩 Reportes</b><div id="repLista"></div><b>🛡️ Usuarios silenciados</b><div id="silLista"></div></div>
   <div id="anuncio" class="chat-anuncio" hidden></div>
   <div class="chat-feed-wrap">
     <div id="chatBox" class="chat-feed" aria-live="polite"></div>
@@ -236,6 +251,7 @@ body.jugando>*:not(.modal-juego):not(.layout){visibility:hidden}
 <p style="color:#555;padding:30px">© 2026 DIBUJITOS PERU</p>
 
 
+<div id="apoyoModal" hidden><div class="caja"><h3>☕ APOYA A LA COMUNIDAD</h3><p>Escanea con Yape 💜</p><img id="apoyoImg" src="yape.png" alt="QR de Yape"><p id="apoyoErr" hidden>No se pudo cargar el QR.</p><p>¡Gracias por apoyar a la comunidad! 💚</p><button id="apoyoX">CERRAR</button></div></div>
 <audio id="bgMusic" loop preload="auto"><source src="intro.mp3" type="audio/mpeg"></audio>
 
 <!-- TERMINAL, MÚSICA Y ENLACES -->
@@ -246,6 +262,12 @@ function type(){if(ci<messages[mi].length){typed.textContent+=messages[mi].charA
 function erase(){if(ci>0){typed.textContent=messages[mi].substring(0,--ci);setTimeout(erase,20)}else{mi=(mi+1)%messages.length;setTimeout(type,500)}}
 document.addEventListener("DOMContentLoaded",()=>setTimeout(type,1000));
 
+document.getElementById('btnApoyo').onclick=()=>{document.getElementById('apoyoModal').hidden=false};
+document.getElementById('apoyoX').onclick=()=>{document.getElementById('apoyoModal').hidden=true};
+document.getElementById('apoyoModal').onclick=e=>{if(e.target.id==='apoyoModal')e.target.hidden=true};
+document.getElementById('apoyoImg').onerror=function(){this.hidden=true;document.getElementById('apoyoErr').hidden=false};
+const MSG0=messages.slice();
+window.kiraSetAnuncios=arr=>{const L=(arr&&arr.length?arr:MSG0);messages.length=0;L.forEach(x=>messages.push(x));mi=0;ci=0;typed.textContent=''};
 const bgAudio=document.getElementById('bgMusic');bgAudio.volume=.3;
 function activarMusica(){bgAudio.play().then(()=>{document.removeEventListener('click',activarMusica);document.removeEventListener('touchstart',activarMusica)}).catch(()=>{})}
 document.addEventListener('click',activarMusica);document.addEventListener('touchstart',activarMusica);
@@ -1162,7 +1184,9 @@ function extras(){
   unsubMes=top10(collection(db,'temporadas',mesId(),'puntajes'),L=>listaMes=L,v=>errMes=v);
   unsubSup=top10(collection(db,'supervivencia'),L=>listaSup=L,v=>errSup=v);
   ganadores();
-  unsubAn=onSnapshot(doc(db,'config','anuncio'),sn=>{const a=$('anuncio'),t=sn.exists()?String(sn.data().texto||''):'';a.textContent=t?'📌 '+t:'';a.hidden=!t},e=>console.error(e));
+  unsubAn=onSnapshot(doc(db,'config','anuncio'),sn=>{const t=sn.exists()?String(sn.data().texto||''):'';const L=t.split(/\r?\n/).map(x=>x.trim().slice(0,220)).filter(Boolean).slice(0,8);
+    if(window.kiraSetAnuncios)window.kiraSetAnuncios(L.length?L:null);
+    if(esAdmin()&&document.activeElement!==$('anInput'))$('anInput').value=t},e=>console.error(e));
   latido();contarOnline();tPres=setInterval(latido,180000);tCnt=setInterval(()=>{if(!document.hidden){contarOnline();pintaCierre()}},120000);pintaCierre();escucharJefe();
   if(esAdmin())unsubRep=onSnapshot(collection(db,'reportes'),snap=>{
     const L=$('repLista');L.textContent='';$('btnAdmin').textContent='🛡️ Admin'+(snap.size?' ('+snap.size+')':'');
@@ -1177,8 +1201,8 @@ function extras(){
   retoUrl();
 }
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){latido();if(user)contarOnline();document.title=tituloBase}});
-$('anPub').onclick=()=>{const t=$('anInput').value.trim().slice(0,160);if(!t)return;setDoc(doc(db,'config','anuncio'),{texto:t,fecha:serverTimestamp()}).then(()=>$('anInput').value='').catch(e=>{console.error(e);alert('No se pudo publicar.')})};
-$('anQuitar').onclick=()=>deleteDoc(doc(db,'config','anuncio')).catch(console.error);
+$('anPub').onclick=()=>{const t=$('anInput').value.trim().slice(0,900);if(!t)return;setDoc(doc(db,'config','anuncio'),{texto:t,fecha:serverTimestamp()}).then(()=>alert('Panel de anuncios actualizado.')).catch(e=>{console.error(e);alert('No se pudo publicar.')})};
+$('anQuitar').onclick=()=>deleteDoc(doc(db,'config','anuncio')).then(()=>{$('anInput').value=''}).catch(console.error);
 
 /* ===== retos 1 vs 1 ===== */
 window.kiraCrearReto=async()=>{
