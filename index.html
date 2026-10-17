@@ -144,7 +144,7 @@ body.sinsesion>*:not(#modalLogin):not(#vidPortada):not(#velPortada):not(.flot):n
 .estado{margin:6px 0 0;color:#00ff00;font-size:12px}
 .sonido{left:10px;right:auto;background:#111;border:1px solid #00ff00}
 body.jugando *{animation:none!important}
-body.jugando>*:not(.modal-juego):not(.layout){visibility:hidden}
+body.jugando>*:not(.modal-juego):not(.layout):not(#amigosModal):not(.invBan){visibility:hidden}
 .btn-instalar{background:#111;color:#7ff3ff;border-color:#7ff3ff;box-shadow:0 0 12px rgba(127,243,255,.5);animation:none;cursor:pointer}
 #panelExtra{padding:0 20px 16px;text-align:left}
 #evLinea{color:#ffd23f;font-size:14px;margin:4px 0 8px}
@@ -202,6 +202,21 @@ h1,.titulo-neon{text-shadow:0 0 8px #00ff00,0 0 16px #00ff00}
 }
 .msg{content-visibility:auto;contain-intrinsic-size:auto 64px}
 @media(max-width:999px){.cab{display:contents}body.jugando .layout{visibility:hidden}body.jugando #modal-juego{visibility:visible}}
+
+/* ===== PC: clasificación oculta (botón) y juego a todo el ancho ===== */
+.btn-clasif,.rk-cerrar{display:none}
+@media(min-width:1000px){
+  .layout{grid-template-columns:280px minmax(0,1fr)!important}
+  .col-izq{display:flex!important;flex-direction:column}
+  .col-izq>*{order:0}
+  .col-izq #btnJuego{order:1}.col-izq #btnClasif{order:2}.col-izq #btnAmigos{order:3}.col-izq #btnApoyo{order:4}.col-izq #btnInstalar{order:5}.col-izq .acc{order:6}
+  .btn-clasif{display:block;background:#111;color:#ffd23f;border-color:#ffd23f;box-shadow:0 0 12px rgba(255,210,63,.45);animation:none;cursor:pointer}
+  .col-der{display:none!important}
+  body.rkModal .col-der{display:flex!important;flex-direction:column;align-items:center;position:fixed;inset:0;z-index:10001;background:rgba(0,0,0,.88);overflow:auto;padding:24px 12px;box-sizing:border-box}
+  body.rkModal .col-der .rank{max-width:560px;width:100%;margin:8px auto}
+  body.rkModal .rk-cerrar{display:block;margin:6px auto;width:auto;padding:8px 22px}
+  body.jugando.rkModal .col-der{visibility:visible}
+}
 @media(min-width:1000px){
   .layout{display:grid;grid-template-columns:280px minmax(0,1fr) 420px;gap:18px;max-width:1600px;margin:0 auto;padding:14px 18px;align-items:start}
   .col-izq,.col-centro,.col-der{display:block;min-width:0}
@@ -255,6 +270,7 @@ h1,.titulo-neon{text-shadow:0 0 8px #00ff00,0 0 16px #00ff00}
 <a class="btn o6" href="https://docs.google.com/forms/d/e/1FAIpQLSegz1mRVy0n9WR7kZtUd2x8f3HFoOQSPkVkx21nvvbDOok_Dg/viewform?usp=publish-editor" target="_blank">🚨 HACER DENUNCIA ANÓNIMA</a>
 <a class="btn btn-green o7" href="https://chat.whatsapp.com/D18tPRmyAVyJb3HdljgUpk" target="_blank">💬 WHATSAPP SECRETO</a>
 <button id="btnJuego" class="btn btn-juego o8">🎮 JUGAR</button>
+<button id="btnClasif" class="btn btn-clasif o8">🏆 CLASIFICACIÓN</button>
 <button id="btnApoyo" class="btn btn-apoyo o8">☕ APÓYANOS</button>
 <button id="btnInstalar" class="btn btn-instalar o8" hidden>📲 INSTALAR APP</button>
 <button id="btnAmigos" class="btn btn-amigos o8" hidden>👥 AMIGOS</button>
@@ -307,6 +323,7 @@ h1,.titulo-neon{text-shadow:0 0 8px #00ff00,0 0 16px #00ff00}
 </div>
 </div>
 <div class="col-der">
+<button id="rkCerrar" class="btn rk-cerrar" type="button">✕ CERRAR</button>
 <details class="acc rank o9" id="ranking" open>
   <summary>🏆 CLASIFICACIÓN</summary>
   <div class="acc-body">
@@ -358,6 +375,12 @@ document.addEventListener('click',activarMusica);document.addEventListener('touc
   bgAudio.addEventListener('pause',()=>v.pause());
   setInterval(sync,1500);}}
 
+
+(function(){var b=document.getElementById('btnClasif'),c=document.getElementById('rkCerrar'),d=document.querySelector('.col-der');
+function cerrar(){document.body.classList.remove('rkModal')}
+if(b)b.onclick=function(){document.body.classList.add('rkModal')};if(c)c.onclick=cerrar;
+if(d)d.addEventListener('click',function(e){if(e.target===d)cerrar()});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')cerrar()})})();
 </script>
 
 <!-- JUEGO: FRANCO PRESIDENTE (space shooter) -->
@@ -1716,7 +1739,7 @@ function escucharAmigos(){
 function limpiaAmigos(){[...unsubAm,unsubInv].forEach(f=>{try{f&&f()}catch(e){}});unsubAm=[];unsubInv=null;clearInterval(tAm);amA=[];amB=[];AM.lista=[];AM.rec=[];AM.env=[];AM.pres={};amAbierto=false;const m=$('amigosModal');if(m)m.hidden=true}
 function mostrarInvit(d){
   try{pitido()}catch(e){}
-  const b=document.createElement('div');b.style.cssText='position:fixed;left:10px;right:10px;top:10px;z-index:10002;background:#111;border:2px solid #7ff3ff;border-radius:12px;padding:12px;color:#fff;font:13px "Share Tech Mono",monospace;text-align:center;box-shadow:0 0 20px #7ff3ff';
+  const b=document.createElement('div');b.className='invBan';b.style.cssText='position:fixed;left:10px;right:10px;top:10px;z-index:10002;background:#111;border:2px solid #7ff3ff;border-radius:12px;padding:12px;color:#fff;font:13px "Share Tech Mono",monospace;text-align:center;box-shadow:0 0 20px #7ff3ff';
   const t=document.createElement('div');t.textContent='🤝 '+String(d.n||'Un amigo').slice(0,24)+' te invita a jugar en dúo ('+(d.modo==='superv'?'supervivencia':'jefe cooperativo')+')';
   const si=document.createElement('button'),no=document.createElement('button');si.textContent='ENTRAR';no.textContent='AHORA NO';
   for(const x of[si,no]){x.style.cssText='margin:8px 4px 0;padding:7px 16px;border:none;border-radius:16px;font:bold 12px Orbitron,sans-serif;cursor:pointer;background:'+(x===si?'#7ff3ff':'#333')+';color:'+(x===si?'#000':'#fff')}
