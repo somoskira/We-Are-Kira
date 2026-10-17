@@ -80,6 +80,8 @@ h1{animation:verdeNeon 1.5s infinite alternate;color:#fff;text-shadow:0 0 10px #
 .chat-admin button{background:none;border:1px solid #00ff00;color:#00ff78;border-radius:6px;font:inherit;font-size:11px;padding:2px 8px;cursor:pointer}
 #btnAdmin{border-color:#00ff00!important;color:#00ff78!important}
 /* LOGIN */
+.modal-login video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2}
+.modal-login .vel{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:-1}
 .modal-login{position:fixed;inset:0;background:#030803;z-index:100;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px;text-align:center}
 .btn-google{background:#fff;color:#333;border:none;padding:12px 20px;font-family:'Orbitron',sans-serif;font-weight:bold;font-size:12px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;width:100%;max-width:280px;margin-top:15px}
 
@@ -191,6 +193,7 @@ body.jugando>*:not(.modal-juego):not(.layout){visibility:hidden}
 
 <!-- LOGIN -->
 <div id="modalLogin" class="modal-login">
+  <video id="vidPortada" muted loop playsinline preload="auto"><source src="intro.mp4#t=0.1" type="video/mp4"></video><div class="vel"></div>
   <img src="perfil.jpg" alt="" style="width:110px;height:110px;border-radius:50%;border:3px solid #00ff00;object-fit:cover;box-shadow:0 0 20px #00ff00;margin-bottom:15px">
   <h2 style="font-size:16px;color:#00ff00;margin-bottom:5px;text-shadow:0 0 10px #00ff00">DIBUJITOS</h2>
   <p style="font-size:11px;color:#ddd;max-width:280px">Inicia sesión con Google para entrar a la comunidad de los dibujitos.</p>
@@ -312,6 +315,14 @@ window.kiraSetAnuncios=arr=>{const L=(arr&&arr.length?arr:MSG0);messages.length=
 const bgAudio=document.getElementById('bgMusic');bgAudio.volume=.3;
 function activarMusica(){bgAudio.play().then(()=>{document.removeEventListener('click',activarMusica);document.removeEventListener('touchstart',activarMusica)}).catch(()=>{})}
 document.addEventListener('click',activarMusica);document.addEventListener('touchstart',activarMusica);
+/* video de portada (sin sonido) sincronizado con la intro */
+{const v=document.getElementById('vidPortada'),ml=document.getElementById('modalLogin');
+ if(v){v.muted=true;v.addEventListener('error',()=>{v.style.display='none'},true);
+  const vis=()=>!ml.hidden;
+  const sync=()=>{if(!vis()||bgAudio.paused){if(!v.paused)v.pause();return}if(v.paused)v.play().catch(()=>{});if(isFinite(bgAudio.currentTime)&&Math.abs(v.currentTime-bgAudio.currentTime)>.25&&v.readyState>1){try{v.currentTime=bgAudio.currentTime}catch(e){}}};
+  bgAudio.addEventListener('play',()=>{if(vis()){try{v.currentTime=bgAudio.currentTime}catch(e){}v.play().catch(()=>{})}});
+  bgAudio.addEventListener('pause',()=>v.pause());
+  setInterval(sync,1500);}}
 
 </script>
 
