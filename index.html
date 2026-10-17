@@ -291,7 +291,8 @@ function acomodar(){
   if(!v){t.cssText='';return}
   const k=v.scale||1;
   t.position='fixed';t.right='auto';t.bottom='auto';t.left=v.offsetLeft+'px';t.top=v.offsetTop+'px';
-  t.width=(v.width*k)+'px';t.height=(v.height*k)+'px';t.transformOrigin='0 0';t.transform=k!==1?'scale('+(1/k)+')':'';
+  const hh=Math.max(v.height,k===1?Math.min(window.innerHeight||0,screen.height||9999):0);
+  t.width=(v.width*k)+'px';t.height=(hh*k)+'px';t.transformOrigin='0 0';t.transform=k!==1?'scale('+(1/k)+')':'';
 }
 let pendAc=0;function pedirAcomodar(){if(pendAc)return;pendAc=requestAnimationFrame(()=>{pendAc=0;acomodar()})}
 if(window.visualViewport){visualViewport.addEventListener('resize',pedirAcomodar);visualViewport.addEventListener('scroll',pedirAcomodar)}
@@ -299,8 +300,8 @@ window.addEventListener('resize',pedirAcomodar);window.addEventListener('orienta
 let metaV=null,metaOrig='';
 function bloquear(on){
   const m=document.querySelector('meta[name=viewport]');
-  if(on){if(m&&metaV===null){metaV=m;metaOrig=m.content;m.content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover'}document.documentElement.style.overflow='hidden';document.body.style.overflow='hidden'}
-  else{if(metaV){metaV.content=metaOrig;metaV=null}document.documentElement.style.overflow='';document.body.style.overflow=''}
+  if(on){if(m&&metaV===null){metaV=m;metaOrig=m.content;m.content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover'}document.documentElement.style.overflow='hidden';document.body.style.overflow='hidden';document.documentElement.style.background='#000';document.body.style.background='#000'}
+  else{if(metaV){metaV.content=metaOrig;metaV=null}document.documentElement.style.overflow='';document.body.style.overflow='';document.documentElement.style.background='';document.body.style.background=''}
 }
 /* diagnóstico: tocar 5 veces el título del juego muestra las medidas de pantalla */
 const ttl=[...hd.children].find(x=>x.tagName==='SPAN'&&!x.classList.contains('terminal-dot'));let tcl=0,tct=0;
