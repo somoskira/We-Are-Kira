@@ -175,6 +175,18 @@ body.jugando>*:not(.modal-juego):not(.layout){visibility:hidden}
 .layout{display:flex;flex-direction:column}
 .col-izq,.col-centro,.col-der{display:contents}
 .o1{order:1}.o2{order:2}.o3{order:3}.o4{order:4}.o5{order:5}.o6{order:6}.o7{order:7}.o8{order:8}.o9{order:9}.o10{order:10}
+@media(max-width:999px){
+@keyframes verdeNeon{from{text-shadow:0 0 5px #fff,0 0 10px #00ff00}to{text-shadow:0 0 8px #fff,0 0 16px #00ff00}}
+@keyframes neonGreen{from{text-shadow:0 0 8px #00ff00}to{text-shadow:0 0 12px #00ff00,0 0 20px #00ff00}}
+@keyframes neonRed{from{text-shadow:0 0 4px red}to{text-shadow:0 0 8px red,0 0 12px red}}
+@keyframes bordeVerde{from{box-shadow:0 0 8px #00ff00}to{box-shadow:0 0 14px #00ff00}}
+@keyframes efectoFantasma{0%,100%{opacity:.2}50%{opacity:1}}
+h1,.titulo-neon{text-shadow:0 0 8px #00ff00,0 0 16px #00ff00}
+.btn{box-shadow:0 0 10px #00ff00;text-shadow:0 0 6px #00ff00}
+.mascara-efecto{box-shadow:0 0 14px #00ff00}
+.chat,.rank,.acc,.terminal-container,.manifiesto-container{box-shadow:0 0 8px rgba(0,255,0,.3)}
+}
+.msg{content-visibility:auto;contain-intrinsic-size:auto 64px}
 @media(max-width:999px){.cab{display:contents}body.jugando .layout{visibility:hidden}body.jugando #modal-juego{visibility:visible}}
 @media(min-width:1000px){
   .layout{display:grid;grid-template-columns:280px minmax(0,1fr) 420px;gap:18px;max-width:1600px;margin:0 auto;padding:14px 18px;align-items:start}
@@ -303,8 +315,8 @@ body.jugando>*:not(.modal-juego):not(.layout){visibility:hidden}
 <script>
 const messages=["> Conexión cifrada establecida con la red KIRA...","> Escaneando nodos de la resistencia...","> 'La verdad no se destruye, se comparte.'","> Bienvenido a la voz del pueblo olvidado."];
 let mi=0,ci=0;const typed=document.getElementById("typed-text");
-function type(){if(ci<messages[mi].length){typed.textContent+=messages[mi].charAt(ci++);setTimeout(type,50)}else setTimeout(erase,2500)}
-function erase(){if(ci>0){typed.textContent=messages[mi].substring(0,--ci);setTimeout(erase,20)}else{mi=(mi+1)%messages.length;setTimeout(type,500)}}
+function type(){if(document.hidden){setTimeout(type,1000);return}if(ci<messages[mi].length){typed.textContent+=messages[mi].charAt(ci++);setTimeout(type,50)}else setTimeout(erase,2500)}
+function erase(){if(document.hidden){setTimeout(erase,1000);return}if(ci>0){typed.textContent=messages[mi].substring(0,--ci);setTimeout(erase,20)}else{mi=(mi+1)%messages.length;setTimeout(type,500)}}
 document.addEventListener("DOMContentLoaded",()=>setTimeout(type,1000));
 
 document.getElementById('btnApoyo').onclick=()=>{document.getElementById('apoyoModal').hidden=false};
@@ -1509,18 +1521,20 @@ $('btnAdmin').onclick=()=>{$('adminPanel').hidden=!$('adminPanel').hidden};
 function escuchar(){
   unsub=onSnapshot(query(col,orderBy('fecha','asc'),limitToLast(100)),snap=>{
     const box=$('chatBox'),abajo=box.scrollHeight-box.scrollTop-box.clientHeight<60;let ajeno=false;
+    const nuevos=[];
     snap.docChanges().forEach(ch=>{
       const old=$('m-'+ch.doc.id);
       if(ch.type==='removed'){old&&old.remove();delete reacCache[ch.doc.id];return}
       const dd=ch.doc.data(),quien=(()=>{const prev=reacCache[ch.doc.id]||{};let q=null;Object.keys(REAC).forEach(k=>{const n=(dd.reac&&dd.reac[k])||[],o=prev[k]||[];n.forEach(u=>{if(!o.includes(u)&&u!==user.uid)q=REAC[k]})});return q})();
       reacCache[ch.doc.id]=Object.assign({},dd.reac||{});
       if(old){if(ch.type==='modified'){old.replaceWith(burbuja(ch.doc));if(!primera&&dd.uid===user.uid&&quien)avisar(quien+' reaccionaron a tu mensaje')}return}
-      box.append(burbuja(ch.doc));
+      nuevos.push(burbuja(ch.doc));
       if(!primera&&dd.uid!==user.uid){ajeno=true;avisar((dd.usuario||'Alguien')+': '+String(dd.texto||'').slice(0,80))}
     });
     window.kiraFrases=snap.docs.map(d=>String(d.data().texto||'').trim()).filter(t=>t.length>=3&&t.length<=28&&!/https?:|www\.|\.[a-z]{2,}\/|[\n\r]/i.test(t)&&/[a-zA-ZáéíóúñÁÉÍÓÚÑ]{2}/.test(t)).slice(-30);
+    if(nuevos.length)box.append(...nuevos);
     while(box.children.length>100)box.firstChild.remove();
-    if(abajo||primera)box.scrollTop=box.scrollHeight;else if(ajeno)$('btnNuevos').hidden=false;
+    if(abajo||primera){box.scrollTop=box.scrollHeight;requestAnimationFrame(()=>{if(abajo||primera)box.scrollTop=box.scrollHeight})}else if(ajeno)$('btnNuevos').hidden=false;
     primera=false;
   },e=>console.error(e));
 }
