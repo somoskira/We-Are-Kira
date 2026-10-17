@@ -123,7 +123,24 @@ h1{animation:verdeNeon 1.5s infinite alternate;color:#fff;text-shadow:0 0 10px #
 .estado{margin:6px 0 0;color:#00ff00;font-size:12px}
 .sonido{left:10px;right:auto;background:#111;border:1px solid #00ff00}
 body.jugando *{animation:none!important}
-body.jugando>*:not(.modal-juego){visibility:hidden}
+body.jugando>*:not(.modal-juego):not(.layout){visibility:hidden}
+/* ===== DISTRIBUCIÓN: móvil = una columna (mismo orden de siempre); PC = 3 columnas ===== */
+.layout{display:flex;flex-direction:column}
+.col-izq,.col-centro,.col-der{display:contents}
+.o1{order:1}.o2{order:2}.o3{order:3}.o4{order:4}.o5{order:5}.o6{order:6}.o7{order:7}.o8{order:8}.o9{order:9}.o10{order:10}
+@media(max-width:999px){body.jugando .layout{visibility:hidden}body.jugando #modal-juego{visibility:visible}}
+@media(min-width:1000px){
+  .layout{display:grid;grid-template-columns:280px minmax(0,1fr) 420px;gap:18px;max-width:1600px;margin:0 auto;padding:14px 18px;align-items:start}
+  .col-izq,.col-centro,.col-der{display:block;min-width:0}
+  .layout .o1,.layout .o2,.layout .o3,.layout .o4,.layout .o5,.layout .o6,.layout .o7,.layout .o8,.layout .o9,.layout .o10{order:0}
+  .col-izq .perfil{margin:6px auto 10px}
+  .col-izq .btn{width:100%;max-width:none;margin:14px 0}
+  .col-izq .acc,.col-der .rank{width:100%;max-width:none;margin:14px 0}
+  .col-centro h1{margin:10px 0 8px}
+  .col-centro .chat,.col-centro .terminal-container{width:100%;max-width:none;margin:14px 0}
+  body.jugando .col-centro>:not(.modal-juego){display:none}
+  #modal-juego{position:relative!important;inset:auto!important;left:auto!important;top:auto!important;right:auto!important;bottom:auto!important;width:100%!important;height:calc(100vh - 28px)!important;transform:none!important;z-index:1;margin:14px 0;border:1px solid #00ff00;border-radius:14px;overflow:hidden;box-shadow:0 0 20px rgba(0,255,0,.3)}
+}
 </style>
 </head>
 <body>
@@ -136,12 +153,43 @@ body.jugando>*:not(.modal-juego){visibility:hidden}
   <button id="btnGoogle" class="btn-google"><img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" alt="">FRANCO PRESIDENTE</button>
 </div>
 
-<img src="perfil.jpg" class="perfil" alt="">
-<h1>BIENVENIDO A LA COMUNIDAD DIBUJITOS</h1>
-<p style="color:#aaa">FRANCO MI TECHO PE MANO.</p>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="layout">
+<div class="col-izq">
+<img src="perfil.jpg" class="perfil o1" alt="">
+<a class="btn o6" href="https://docs.google.com/forms/d/e/1FAIpQLSegz1mRVy0n9WR7kZtUd2x8f3HFoOQSPkVkx21nvvbDOok_Dg/viewform?usp=publish-editor" target="_blank">🚨 HACER DENUNCIA ANÓNIMA</a>
+<a class="btn btn-green o7" href="https://chat.whatsapp.com/D18tPRmyAVyJb3HdljgUpk" target="_blank">💬 WHATSAPP SECRETO</a>
+<button id="btnJuego" class="btn btn-juego o8">🎮 JUGAR</button>
+<details class="acc o10"><summary>🎭 LA MÁSCARA</summary><div class="acc-body" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:25px;padding-top:6px">
+  <img src="mascara.jpg" class="mascara-efecto" alt="Máscara KIRA">
+  <div style="flex:1;min-width:240px;text-align:left">
+    <p style="font-size:15px;color:#ccc;line-height:1.4">Usa la máscara como símbolo de pertenencia a nuestra hermandad</p>
+    <p style="font-size:13px;margin-top:20px;letter-spacing:3px;text-shadow:0 0 5px red,0 0 10px red;animation:neonRed 1.5s infinite alternate">BY LOS DIBUJITOS</p>
+  </div>
+</div></details>
+</div>
+<div class="col-centro">
+<h1 class="o2">BIENVENIDO A LA COMUNIDAD DIBUJITOS</h1>
+<p class="o3" style="color:#aaa">FRANCO MI TECHO PE MANO.</p>
+<div class="terminal-container o5">
+  <div class="terminal-header"><span class="terminal-dot"></span><span>TERMINAL_POOL // SECURE_NODE_01</span></div>
+  <div class="terminal-body"><span id="typed-text"></span><span class="cursor"></span></div>
+</div>
 <!-- CHAT EN VIVO -->
-<section id="chat" class="chat" hidden>
+<section id="chat" class="chat o4" hidden>
   <header class="chat-head">
     <div class="chat-title"><span class="live"></span>DIBUJITOS SOCIAL <span id="enLinea" class="chat-on"></span></div>
     <div class="chat-me"><img id="meFoto" alt=""><span id="meNombre"></span><button id="btnNoti" title="Avisos de mensajes y reacciones">🔕</button><button id="btnAdmin" hidden title="Panel de administrador">🛡️ Admin</button><button id="btnSalir">Salir</button></div>
@@ -160,37 +208,6 @@ body.jugando>*:not(.modal-juego){visibility:hidden}
     <button id="btnEnviar">ENVIAR</button>
   </div>
 </section>
-
-<div class="terminal-container">
-  <div class="terminal-header"><span class="terminal-dot"></span><span>TERMINAL_POOL // SECURE_NODE_01</span></div>
-  <div class="terminal-body"><span id="typed-text"></span><span class="cursor"></span></div>
-</div>
-
-<a class="btn" href="https://docs.google.com/forms/d/e/1FAIpQLSegz1mRVy0n9WR7kZtUd2x8f3HFoOQSPkVkx21nvvbDOok_Dg/viewform?usp=publish-editor" target="_blank">🚨 HACER DENUNCIA ANÓNIMA</a>
-<a class="btn btn-green" href="https://chat.whatsapp.com/D18tPRmyAVyJb3HdljgUpk" target="_blank">💬 WHATSAPP SECRETO</a>
-<button id="btnJuego" class="btn btn-juego">🎮 JUGAR</button>
-
-<details class="acc rank" id="ranking" open>
-  <summary>🏆 CLASIFICACIÓN</summary>
-  <div class="acc-body">
-  <div id="jefeBar" class="jefe-bar" hidden></div><div id="cierreSem" class="acc-ganador"></div>
-  <div class="tabs"><button id="tabGen" class="on">GENERAL</button><button id="tabSem">SEMANAL</button><button id="tabMes">MENSUAL</button><button id="tabSup">♾️ SUPERV.</button></div>
-  <div id="ganadorSem" class="acc-ganador" hidden></div>
-  <ol id="rankLista"><li class="vacio">Cargando...</li></ol>
-  </div>
-</details>
-
-<details class="acc"><summary>🎭 LA MÁSCARA</summary><div class="acc-body" style="display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:25px;padding-top:6px">
-  <img src="mascara.jpg" class="mascara-efecto" alt="Máscara KIRA">
-  <div style="flex:1;min-width:240px;text-align:left">
-    <p style="font-size:15px;color:#ccc;line-height:1.4">Usa la máscara como símbolo de pertenencia a nuestra hermandad</p>
-    <p style="font-size:13px;margin-top:20px;letter-spacing:3px;text-shadow:0 0 5px red,0 0 10px red;animation:neonRed 1.5s infinite alternate">BY LOS DIBUJITOS</p>
-  </div>
-</div></details>
-
-<h2 class="titulo-neon">BIENVENIDO A LA HERMANDAD</h2>
-<p style="color:#555;padding:30px">© 2026 DIBUJITOS PERU</p>
-
 <!-- MODAL JUEGO -->
 <div id="modal-juego" class="modal-juego" hidden>
   <div class="terminal-container game-box">
@@ -202,6 +219,22 @@ body.jugando>*:not(.modal-juego){visibility:hidden}
     <p id="gEstado" class="estado"></p>
   </div>
 </div>
+</div>
+<div class="col-der">
+<details class="acc rank o9" id="ranking" open>
+  <summary>🏆 CLASIFICACIÓN</summary>
+  <div class="acc-body">
+  <div id="jefeBar" class="jefe-bar" hidden></div><div id="cierreSem" class="acc-ganador"></div>
+  <div class="tabs"><button id="tabGen" class="on">GENERAL</button><button id="tabSem">SEMANAL</button><button id="tabMes">MENSUAL</button><button id="tabSup">♾️ SUPERV.</button></div>
+  <div id="ganadorSem" class="acc-ganador" hidden></div>
+  <ol id="rankLista"><li class="vacio">Cargando...</li></ol>
+  </div>
+</details>
+</div>
+</div>
+<h2 class="titulo-neon">BIENVENIDO A LA HERMANDAD</h2>
+<p style="color:#555;padding:30px">© 2026 DIBUJITOS PERU</p>
+
 
 <audio id="bgMusic" loop preload="auto"><source src="intro.mp3" type="audio/mpeg"></audio>
 
@@ -811,7 +844,7 @@ function reset(menu){
   stars=mkStars();
   $('gEstado').textContent=MSG;hud();pintaHab();musicaJuego();if(menu!==true)aplicarBoost();
 }
-function abrir(){document.body.classList.add('jugando');intro.pause();if(ac&&ac.state!=='running')ac.resume();modal.hidden=false;bloquear(true);acomodar();ajustar();reset(true);esperando=true;mostrarOpc();pintaTop();last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(loop)}
+function abrir(){if(window.matchMedia&&matchMedia('(min-width:1000px)').matches)window.scrollTo(0,0);document.body.classList.add('jugando');intro.pause();if(ac&&ac.state!=='running')ac.resume();modal.hidden=false;bloquear(true);acomodar();ajustar();reset(true);esperando=true;mostrarOpc();pintaTop();last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(loop)}
 function cerrar(){if(duelo)dejarDuelo();else salirSala();fin();subir();pausa=false;gOpc.hidden=gFin.hidden=gPerfil.hidden=gTienda.hidden=gExtra.hidden=true;bloquear(false);modal.style.cssText='';document.body.classList.remove('jugando');modal.hidden=true;cancelAnimationFrame(raf);gm.pause();if(introOn)intro.play().catch(()=>{})}
 function boom(x,y,c){for(let i=0;i<12;i++){const a=Math.random()*6.28,s=40+Math.random()*90;part.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,l:.5,c:PAL[Math.floor(Math.random()*5)]})}}
 function nombre(){const n=((window.kiraUser||'').trim().split(/\s+/)[0])||'crack';return n.charAt(0).toUpperCase()+n.slice(1).toLowerCase()}
