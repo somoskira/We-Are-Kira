@@ -334,7 +334,7 @@ const JEFES=[{pasa:5,img:'enemigo1.png',hp:40,pts:200,pat:'abanico'},{pasa:10,im
 /* ========================== */
 const USAR_CHAT=true; /* las frases cortas del chat de la portada también salen en el juego (pon false para quitarlas) */
 const DIFS={facil:{n:'😌 FÁCIL',vidas:5,vel:.8,sp:1.3,m:.5},normal:{n:'😎 NORMAL',vidas:3,vel:1,sp:1,m:1},dificil:{n:'😈 DIFÍCIL',vidas:2,vel:1.25,sp:.8,m:1.5}}; /* m = multiplicador de puntos */
-const SKINS=[{id:'base',n:'Verde',ic:'🟢',min:0,c:'#00ff00',ala:'#ff8c1a'},{id:'oro',n:'Dorado',ic:'🥇',min:1000,c:'#ffd23f',ala:'#c99a12'},{id:'fuego',n:'Fuego',ic:'🔥',min:3000,c:'#ff5a1f',ala:'#e02a00',est:'#ff8c1a'},{id:'arco',n:'Arcoíris',ic:'🌈',min:6000,c:'',ala:'#9b6bff'},{id:'neon',n:'Neón',ic:'💠',precio:80,c:'#3ddcff',ala:'#1a7fd0',est:'#3ddcff'},{id:'rosa',n:'Rosa',ic:'🌸',precio:80,c:'#ff5fa8',ala:'#c2185b'},{id:'galaxia',n:'Galaxia',ic:'🌌',precio:200,c:'#9b6bff',ala:'#3d1a9c',est:'#c9a6ff'},{id:'vip_oro',n:'VIP Oro',ic:'👑',vip:1,c:'#ffd23f',ala:'#ff9d00',est:'#ffe27a'},{id:'vip_cristal',n:'VIP Cristal',ic:'💎',vip:1,c:'#7ff3ff',ala:'#2a7fff',est:'#bff9ff'},{id:'vip_rubi',n:'VIP Rubí',ic:'♦️',vip:1,c:'#ff3b6b',ala:'#8a0030',est:'#ff7a9c'}]; /* min = mejor puntaje para desbloquear */
+const SKINS=[{id:'base',n:'Verde',ic:'🟢',min:0,c:'#00ff00',ala:'#ff8c1a'},{id:'oro',n:'Dorado',ic:'🥇',min:1000,c:'#ffd23f',ala:'#c99a12'},{id:'fuego',n:'Fuego',ic:'🔥',min:3000,c:'#ff5a1f',ala:'#e02a00',est:'#ff8c1a'},{id:'arco',n:'Arcoíris',ic:'🌈',min:6000,c:'',ala:'#9b6bff'},{id:'neon',n:'Neón',ic:'💠',precio:80,c:'#3ddcff',ala:'#1a7fd0',est:'#3ddcff'},{id:'rosa',n:'Rosa',ic:'🌸',precio:80,c:'#ff5fa8',ala:'#c2185b'},{id:'galaxia',n:'Galaxia',ic:'🌌',precio:200,c:'#9b6bff',ala:'#3d1a9c',est:'#c9a6ff'},{id:'vip_oro',n:'VIP Oro',ic:'👑',vip:1,c:'#ffd23f',ala:'#ff9d00',est:'#ffe27a'},{id:'vip_cristal',n:'VIP Cristal',ic:'💎',vip:1,c:'#7ff3ff',ala:'#2a7fff',est:'#bff9ff'},{id:'vip_cara',n:'Mi Cara VIP',ic:'🙂',vip:1,c:'#00e0ff',ala:'#7a00ff',est:'#c9a6ff'},{id:'vip_rubi',n:'VIP Rubí',ic:'♦️',vip:1,c:'#ff3b6b',ala:'#8a0030',est:'#ff7a9c'}]; /* min = mejor puntaje para desbloquear */
 const RETO_PTS=300;
 const RETOS=[
  {id:'kills30',d:'Elimina 30 enemigos en una partida',ok:()=>kills>=30},
@@ -541,6 +541,7 @@ function circulo(src,color,cb,S){S=S||68;const i=new Image();i.onload=()=>{const
   g.save();g.beginPath();g.arc(h,h,r,0,6.283);g.clip();g.drawImage(i,(s-m)/2,(t-m)/2,m,m,0,0,S,S);g.restore();
   const q=g.createRadialGradient(S*.35,S*.32,S*.06,h,h,h);q.addColorStop(0,'rgba(255,255,255,.35)');q.addColorStop(.6,'rgba(0,0,0,0)');q.addColorStop(1,'rgba(0,0,0,.45)');g.fillStyle=q;g.beginPath();g.arc(h,h,r,0,6.283);g.fill(); /* efecto 3D de esfera */
   g.lineWidth=S/22;g.strokeStyle=color;g.beginPath();g.arc(h,h,r,0,6.283);g.stroke();cb(c)};i.referrerPolicy='no-referrer';i.src=src}
+let miRostro=null,miRostroUrl='';function cargaMiRostro(){const u=window.kiraFoto||'';if(!u||u===miRostroUrl)return;miRostroUrl=u;circulo(u,'#ffffff',c=>miRostro=c)}
 let rostro=null,caras=[],fr=[],tFrase=0;
 circulo('franco.png','rgba(0,0,0,0)',c=>rostro=c); /* el aro se dibuja según la skin */
 CARAS_ENEMIGAS.forEach(n=>circulo(n,'#ff0055',c=>caras.push(c)));
@@ -1038,10 +1039,10 @@ function dibujar(){
   ebalas.forEach(b=>{cx.fillStyle='#ff2d55';cx.beginPath();cx.arc(b.x,b.y,6,0,6.283);cx.fill();cx.fillStyle='#fff';cx.beginPath();cx.arc(b.x,b.y,2.5,0,6.283);cx.fill()});
   items.forEach(it=>{const p=1+.12*Math.sin(it.t0*8);cx.fillStyle='rgba(255,255,255,.18)';cx.beginPath();cx.arc(it.x,it.y,17*p,0,6.283);cx.fill();emoji(it.t,it.x,it.y,24*p)});
   if(!over&&(inv<=0||Math.floor(inv*10)%2)){
-    cx.save();cx.translate(ship.x,ship.y);cx.rotate(tilt);const sk=SKIN(),arc='hsl('+(performance.now()/6%360)+' 90% 58%)';
+    cx.save();cx.translate(ship.x,ship.y);cx.rotate(tilt);const sk=SKIN(),arc='hsl('+(performance.now()/6%360)+' 90% 58%)';if(sk.id==='vip_cara')cargaMiRostro();const rost=sk.id==='vip_cara'&&miRostro?miRostro:rostro;
     cx.fillStyle='rgba(0,0,0,.3)';cx.beginPath();cx.ellipse(6,36,28,7,0,0,6.283);cx.fill();
     cx.fillStyle=sk.c?sk.ala:arc;cx.beginPath();cx.moveTo(0,-2);cx.lineTo(-30,26);cx.lineTo(0,16);cx.lineTo(30,26);cx.closePath();cx.fill();
-    if(rostro){cx.drawImage(rostro,-28,-36,56,56);cx.lineWidth=2.6;cx.strokeStyle=sk.c||arc;cx.beginPath();cx.arc(0,-8,26.4,0,6.283);cx.stroke()}
+    if(rost){cx.drawImage(rost,-28,-36,56,56);cx.lineWidth=2.6;cx.strokeStyle=sk.c||arc;cx.beginPath();cx.arc(0,-8,26.4,0,6.283);cx.stroke()}
     else{cx.beginPath();cx.moveTo(0,-14);cx.lineTo(-13,8);cx.lineTo(13,8);cx.closePath();cx.fill()}
     if(escudo>0&&(escudo>1||Math.floor(escudo*8)%2)){cx.strokeStyle='#3ddcff';cx.lineWidth=3;cx.beginPath();cx.arc(0,-8,40,0,6.283);cx.stroke()}
     cx.restore();
