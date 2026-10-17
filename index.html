@@ -1701,9 +1701,10 @@ function rehacerAm(){
   AM.lista=L.filter(x=>x.estado==='ok');AM.rec=L.filter(x=>x.estado==='pend'&&x.de!==yo);AM.env=L.filter(x=>x.estado==='pend'&&x.de===yo);
   pintaBtnAm();if(amAbierto)pintaListaAm();refrescaPres();
 }
+let amFallo=0;
 function escucharAmigos(){
   if(unsubAm.length||!user)return;
-  const q=campo=>onSnapshot(query(collection(db,'amistades'),where(campo,'==',user.uid)),sn=>{const L=sn.docs.map(d=>Object.assign({id:d.id},d.data()));if(campo==='a')amA=L;else amB=L;rehacerAm()},e=>console.error(e));
+  const q=campo=>onSnapshot(query(collection(db,'amistades'),where(campo,'==',user.uid)),sn=>{const L=sn.docs.map(d=>Object.assign({id:d.id},d.data()));if(campo==='a')amA=L;else amB=L;rehacerAm()},e=>{console.error(e);amFallo=1;try{amDiceMsg('No se pueden leer las amistades: publica las reglas nuevas de Firebase.')}catch(x){}});
   unsubAm=[q('a'),q('b')];
   unsubInv=onSnapshot(doc(db,'invitaciones',user.uid),sn=>{
     if(!sn.exists())return;const d=sn.data(),t=d.ts&&d.ts.toMillis?d.ts.toMillis():Date.now();
