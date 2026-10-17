@@ -265,11 +265,30 @@ const LOGROS=[
  {id:'power',n:'Coleccionista',d:'Recoge 50 power-ups en total',ic:'💎'}];
 const ESTELAS=[{id:'ninguna',n:'Sin estela',ic:'➖',precio:0},{id:'chispas',n:'Chispas',ic:'✨',precio:40,c:'#ffd23f'},{id:'hielo',n:'Hielo',ic:'❄️',precio:40,c:'#7fe8ff'},{id:'rosa',n:'Rosa',ic:'💗',precio:40,c:'#ff5fa8'},{id:'arcoiris',n:'Arcoíris',ic:'🌈',precio:120,c:''}];
 const BOOSTS=[{k:'vida',n:'Vida extra',ic:'❤️',precio:30,d:'+1 vida al empezar'},{k:'escudo',n:'Escudo inicial',ic:'🛡️',precio:30,d:'Escudo de 6 s al empezar'}];
-let stats={partidas:0,kills:0,combo:0,pw:0,logros:{},skin:'base',dif:'normal',reto:{d:0,ok:0},monedas:0,comprado:{},estela:'ninguna',boost:{vida:0,escudo:0}};
+const defStats=()=>({partidas:0,kills:0,combo:0,pw:0,logros:{},skin:'base',dif:'normal',reto:{d:0,ok:0},monedas:0,comprado:{},estela:'ninguna',boost:{vida:0,escudo:0}});
+let stats=defStats();
 try{Object.assign(stats,JSON.parse(localStorage.getItem('kiraStats')||'{}'))}catch(e){}
 if(!stats.logros)stats.logros={};if(!stats.reto)stats.reto={d:0,ok:0};if(!stats.comprado)stats.comprado={};if(!stats.boost)stats.boost={vida:0,escudo:0};if(!stats.estela)stats.estela='ninguna';if(!(stats.monedas>0))stats.monedas=0;
 let dif=DIFS[stats.dif]?stats.dif:'normal';
-const guardaStats=()=>{try{localStorage.setItem('kiraStats',JSON.stringify(stats))}catch(e){}};
+const guardaLocal=()=>{try{localStorage.setItem('kiraStats',JSON.stringify(stats))}catch(e){}};
+const guardaStats=()=>{guardaLocal();if(window.kiraGuardarPerfil&&window.kiraSync)window.kiraGuardarPerfil(window.kiraSync.get())};
+/* progreso en la cuenta de Google: lo usa el módulo de Firebase */
+function normaliza(){stats.logros=stats.logros||{};stats.comprado=stats.comprado||{};stats.boost=stats.boost||{vida:0,escudo:0};stats.reto=stats.reto||{d:0,ok:0};stats.estela=stats.estela||'ninguna';stats.skin=stats.skin||'base';if(!(stats.monedas>0))stats.monedas=0;delete stats.record;dif=DIFS[stats.dif]?stats.dif:'normal'}
+window.kiraSync={
+  get:()=>Object.assign({},stats,{record}),
+  cargar(r,uid){
+    let ant=null;try{ant=localStorage.getItem('kiraStatsUid')}catch(e){}
+    const mismo=!ant||ant===uid;
+    if(r){
+      if(!mismo){stats=Object.assign(defStats(),r);record=+r.record||0}
+      else{const m=Object.assign({},stats,r);['partidas','kills','combo','pw'].forEach(k=>m[k]=Math.max(stats[k]||0,+r[k]||0));m.logros=Object.assign({},stats.logros,r.logros);m.comprado=Object.assign({},stats.comprado,r.comprado);stats=m;record=Math.max(record,+r.record||0)}
+    }else if(!mismo){stats=defStats();record=0}
+    normaliza();
+    try{localStorage.setItem('kiraStatsUid',uid);localStorage.setItem('kiraRecord',record)}catch(e){}
+    guardaLocal();try{hud()}catch(e){}
+    return !r; /* true = no había nada en la nube: hay que subir lo de este dispositivo */
+  }
+};
 const FONT="11px 'Share Tech Mono',monospace",PAL=['#ff5fa8','#ffd23f','#3ddcff','#ff8c1a','#9b6bff'];
 const HAB=[{ic:'💣',cd:25,dur:0},{ic:'🛡️',cd:20,dur:5},{ic:'⚡',cd:15,dur:6}];
 
@@ -509,6 +528,7 @@ function mostrarPerfil(){
   if(window.kiraFoto){const im=mk('img','pf');im.referrerPolicy='no-referrer';im.alt='';im.src=window.kiraFoto;p.append(im)}
   p.append(mk('h3',0,(window.kiraUser||nombre()).toUpperCase()));
   const g=mk('div','gst');[['MEJOR PUNTAJE',mejor()],['PARTIDAS',stats.partidas],['ENEMIGOS',stats.kills],['MEJOR COMBO','x'+stats.combo],['MONEDAS','🪙 '+stats.monedas]].forEach(([a,b])=>{const d=mk('div',0,a);d.append(mk('b',0,b));g.append(d)});
+  const nube=mk('div','fmsg',window.kiraSyncOk?'☁️ Tu progreso se guarda en tu cuenta de Google':'⚠️ Progreso solo en este dispositivo');nube.style.fontSize='11px';p.append(nube);
   p.append(g,mk('div','fmsg','🏅 LOGROS '+Object.keys(stats.logros).length+'/'+LOGROS.length));
   const lg=mk('div','logros');LOGROS.forEach(L=>{const ok=stats.logros[L.id],d=mk('div','logro'+(ok?' ok':''),(ok?L.ic:'🔒')+' '+L.n);d.append(mk('small',0,L.d));lg.append(d)});
   p.append(lg);const c=mk('button','gb big','CERRAR');c.onclick=()=>{p.hidden=true};p.append(c);
@@ -539,7 +559,7 @@ function subir(){if(subido||!(puntos>0))return;subido=true;if(window.kiraGuardar
 function pausar(){if(over||esperando||modal.hidden)return;pausa=!pausa;bPa.textContent=pausa?'▶':'⏸';if(pausa)gm.pause();else if(musica)gm.play().catch(()=>{})}
 bPa.onclick=pausar;
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&!modal.hidden&&!over&&!esperando&&!pausa)pausar()});
-window.addEventListener('pagehide',()=>{if(!modal.hidden)subir()});
+window.addEventListener('pagehide',()=>{if(!modal.hidden){fin();subir()}});
 function perder(){over=true;gm.pause();sfx('perder');$('gEstado').textContent='FIREWALL VENCIDO';
   const nuevo=puntos>0&&puntos>recordIni;finMsg=(nuevo?RECORD_MSG:FIN[Math.floor(Math.random()*FIN.length)]).split('{n}').join(nombre());comboN=0;chequear();subir();tOver=performance.now();fin();mostrarFin()}
 function golpe(x,y,c){herido();boom(x,y,c);vidas--;inv=1.5;boom(ship.x,ship.y,'#00ff00');hud();if(vidas<=0)perder()}
@@ -712,10 +732,30 @@ getRedirectResult(auth).catch(e=>console.error(e));
 onAuthStateChanged(auth,u=>{
   user=u;$('btnAdmin').hidden=!esAdmin();if(!esAdmin())$('adminPanel').hidden=true;window.kiraUser=u?(u.displayName||''):'';window.kiraUid=u?u.uid:'';window.kiraFoto=u?(u.photoURL||''):'';$('modalLogin').hidden=!!u;$('chat').hidden=!u;
   if(unsub){unsub();unsub=null}
-  if(u){$('meFoto').src=u.photoURL||'';$('meNombre').textContent=u.displayName||'Usuario';$('chatBox').textContent='';primera=true;escuchar();escucharTop();escucharSemana();escucharSil()}else{if(unsubTop){unsubTop();unsubTop=null}if(unsubSem){unsubSem();unsubSem=null}if(unsubSil){unsubSil();unsubSil=null}if(unsubSilL){unsubSilL();unsubSilL=null}silenciado=false}
+  if(u){$('meFoto').src=u.photoURL||'';$('meNombre').textContent=u.displayName||'Usuario';$('chatBox').textContent='';primera=true;escuchar();escucharTop();escucharSemana();escucharSil();cargarPerfil()}else{cargado=false;pend=null;if(unsubTop){unsubTop();unsubTop=null}if(unsubSem){unsubSem();unsubSem=null}if(unsubSil){unsubSil();unsubSil=null}if(unsubSilL){unsubSilL();unsubSilL=null}silenciado=false}
 });
 
 const esAdmin=()=>!!user&&!!user.email&&user.email.toLowerCase()===ADMIN;
+/* ===== progreso del juego en la cuenta de cada jugador ===== */
+let cargado=false,timerP=null,pend=null;
+async function volcar(){
+  if(!user||!cargado||!pend)return;const o=pend;pend=null;
+  try{await setDoc(doc(db,'perfiles',user.uid),{uid:user.uid,datos:JSON.stringify(o),fecha:serverTimestamp()});window.kiraSyncOk=true}
+  catch(e){console.error(e);window.kiraSyncOk=false}
+}
+window.kiraGuardarPerfil=o=>{pend=o;clearTimeout(timerP);timerP=setTimeout(volcar,1200)};
+window.addEventListener('pagehide',()=>{if(pend)volcar()});
+async function cargarPerfil(){
+  cargado=false;window.kiraSyncOk=false;const u=user;
+  try{
+    const sn=await getDoc(doc(db,'perfiles',u.uid));
+    if(!user||user.uid!==u.uid)return;
+    const r=sn.exists()?JSON.parse(sn.data().datos||'null'):null;
+    const subir=window.kiraSync?window.kiraSync.cargar(r,u.uid):false;
+    cargado=true;window.kiraSyncOk=true;pend=null;
+    if(subir&&window.kiraSync)window.kiraGuardarPerfil(window.kiraSync.get());
+  }catch(e){console.error(e)}
+}
 const color=uid=>{let h=0;for(const c of uid)h=(h*31+c.charCodeAt(0))>>>0;return`hsl(${h%360} 100% 65%)`};
 
 function burbuja(s){
