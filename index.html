@@ -80,9 +80,13 @@ h1{animation:verdeNeon 1.5s infinite alternate;color:#fff;text-shadow:0 0 10px #
 .chat-admin button{background:none;border:1px solid #00ff00;color:#00ff78;border-radius:6px;font:inherit;font-size:11px;padding:2px 8px;cursor:pointer}
 #btnAdmin{border-color:#00ff00!important;color:#00ff78!important}
 /* LOGIN */
-.modal-login video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2}
-.modal-login .vel{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:-1}
-.modal-login{position:fixed;inset:0;background:#030803;z-index:100;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px;text-align:center}
+#vidPortada{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2;background:#000}
+#velPortada{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:-1;pointer-events:none}
+body.sinsesion>*:not(#modalLogin):not(#vidPortada):not(#velPortada):not(.flot):not(script):not(audio){visibility:hidden}
+#invAviso{margin:10px auto;max-width:560px;width:100%;padding:12px;border:1px solid #ffd23f;border-radius:12px;background:rgba(0,0,0,.7);color:#ffd23f;font-size:13px;line-height:1.5;text-align:center;box-sizing:border-box}
+#invAviso button,.btn-inv{margin-top:8px;background:transparent;color:#ffd23f;border:1px solid #ffd23f;border-radius:20px;padding:8px 18px;font:bold 12px 'Orbitron',sans-serif;cursor:pointer}
+.btn-inv{display:block;margin:10px auto 0;color:#cfc;border-color:#00ff00}
+.modal-login{position:fixed;inset:0;background:rgba(3,8,3,.25);z-index:100;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:20px;text-align:center}
 .btn-google{background:#fff;color:#333;border:none;padding:12px 20px;font-family:'Orbitron',sans-serif;font-weight:bold;font-size:12px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;width:100%;max-width:280px;margin-top:15px}
 
 /* CHAT PROFESIONAL */
@@ -190,14 +194,15 @@ body.jugando>*:not(.modal-juego):not(.layout){visibility:hidden}
 </style>
 </head>
 <body>
+<video id="vidPortada" muted loop playsinline preload="auto"><source src="intro.mp4#t=0.1" type="video/mp4"></video><div id="velPortada"></div>
 
 <!-- LOGIN -->
 <div id="modalLogin" class="modal-login">
-  <video id="vidPortada" muted loop playsinline preload="auto"><source src="intro.mp4#t=0.1" type="video/mp4"></video><div class="vel"></div>
-  <img src="perfil.jpg" alt="" style="width:110px;height:110px;border-radius:50%;border:3px solid #00ff00;object-fit:cover;box-shadow:0 0 20px #00ff00;margin-bottom:15px">
+    <img src="perfil.jpg" alt="" style="width:110px;height:110px;border-radius:50%;border:3px solid #00ff00;object-fit:cover;box-shadow:0 0 20px #00ff00;margin-bottom:15px">
   <h2 style="font-size:16px;color:#00ff00;margin-bottom:5px;text-shadow:0 0 10px #00ff00">DIBUJITOS</h2>
   <p style="font-size:11px;color:#ddd;max-width:280px">Inicia sesión con Google para entrar a la comunidad de los dibujitos.</p>
   <button id="btnGoogle" class="btn-google"><img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" alt="">FRANCO PRESIDENTE</button>
+  <button id="btnInvitado" class="btn-inv">👤 ENTRAR COMO INVITADO</button>
 </div>
 
 
@@ -242,6 +247,7 @@ body.jugando>*:not(.modal-juego):not(.layout){visibility:hidden}
   <div id="panelExtra" hidden><div id="evLinea"></div><div id="encBox"></div></div>
 </div>
 <!-- CHAT EN VIVO -->
+<div id="invAviso" class="o4" hidden>👤 Modo invitado: puedes ver la clasificación y jugar, pero tus puntajes no se guardan y el chat está cerrado.<br><button id="btnInvLogin">INICIAR SESIÓN CON GOOGLE</button></div>
 <section id="chat" class="chat o4" hidden>
   <header class="chat-head">
     <div class="chat-title"><span class="live"></span>DIBUJITOS SOCIAL <span id="enLinea" class="chat-on"></span></div>
@@ -316,9 +322,10 @@ const bgAudio=document.getElementById('bgMusic');bgAudio.volume=.3;
 function activarMusica(){bgAudio.play().then(()=>{document.removeEventListener('click',activarMusica);document.removeEventListener('touchstart',activarMusica)}).catch(()=>{})}
 document.addEventListener('click',activarMusica);document.addEventListener('touchstart',activarMusica);
 /* video de portada (sin sonido) sincronizado con la intro */
+{const ml0=document.getElementById('modalLogin'),pon=()=>document.body.classList.toggle('sinsesion',!ml0.hidden);pon();new MutationObserver(pon).observe(ml0,{attributes:true,attributeFilter:['hidden']})}
 {const v=document.getElementById('vidPortada'),ml=document.getElementById('modalLogin');
  if(v){v.muted=true;v.addEventListener('error',()=>{v.style.display='none'},true);
-  const vis=()=>!ml.hidden;
+  const vis=()=>!document.body.classList.contains('jugando');
   const sync=()=>{if(!vis()||bgAudio.paused){if(!v.paused)v.pause();return}if(v.paused)v.play().catch(()=>{});if(isFinite(bgAudio.currentTime)&&Math.abs(v.currentTime-bgAudio.currentTime)>.25&&v.readyState>1){try{v.currentTime=bgAudio.currentTime}catch(e){}}};
   bgAudio.addEventListener('play',()=>{if(vis()){try{v.currentTime=bgAudio.currentTime}catch(e){}v.play().catch(()=>{})}});
   bgAudio.addEventListener('pause',()=>v.pause());
@@ -1110,6 +1117,8 @@ $('btnSalir').onclick=()=>signOut(auth);
 getRedirectResult(auth).catch(e=>console.error(e));
 
 onAuthStateChanged(auth,u=>{
+  if(!u&&invitado)return;
+  if(u&&invitado)salirInvitado();
   user=u;$('btnAdmin').hidden=!esAdmin();if(!esAdmin())$('adminPanel').hidden=true;window.kiraUser=u?(u.displayName||''):'';window.kiraUid=u?u.uid:'';window.kiraFoto=u?(u.photoURL||''):'';$('modalLogin').hidden=!!u;$('chat').hidden=!u;
   if(unsub){unsub();unsub=null}
   if(u){$('meFoto').src=u.photoURL||'';$('meNombre').textContent=u.displayName||'Usuario';$('chatBox').textContent='';primera=true;escuchar();escucharTop();escucharSemana();escucharSil();cargarPerfil();extras()}else{cargado=false;pend=null;if(unsubTop){unsubTop();unsubTop=null}if(unsubSem){unsubSem();unsubSem=null}if(unsubSil){unsubSil();unsubSil=null}if(unsubSilL){unsubSilL();unsubSilL=null}[unsubMes,unsubSup,unsubAn,unsubRep,unsubJefe,unsubVip,unsubVipL].forEach(f=>f&&f());unsubMes=unsubSup=unsubAn=unsubRep=unsubJefe=unsubVip=unsubVipL=null;window.kiraVip=null;clearInterval(tPres);clearInterval(tCnt);silenciado=false}
@@ -1303,8 +1312,8 @@ function pintaJefe(){
   if(J.dano<J.max){const s=document.createElement('div');s.style.cssText='font-size:11px;color:#aaa';s.textContent='Cada enemigo que derrotas en el juego le quita vida. ¡Juega y véncelo entre todos!';el.append(s)}
 }
 async function escucharJefe(){
-  try{const sn=await getDoc(jefeRef());if(!sn.exists())await setDoc(jefeRef(),{max:3000,dano:0,creado:serverTimestamp()})}catch(e){console.error(e)}
-  if(!user||unsubJefe)return;
+  if(user)try{const sn=await getDoc(jefeRef());if(!sn.exists())await setDoc(jefeRef(),{max:3000,dano:0,creado:serverTimestamp()})}catch(e){console.error(e)}
+  if((!user&&!invitado)||unsubJefe)return;
   unsubJefe=onSnapshot(jefeRef(),sn=>{const d=sn.exists()?sn.data():null;window.kiraJefe=d?{id:semanaId(),dano:d.dano||0,max:d.max||3000}:null;pintaJefe();window.dispatchEvent(new Event('kiraJefe'));if(Date.now()-tJT>90000){tJT=Date.now();refrescaJT()}},e=>console.error(e));
 }
 window.kiraJefeSumar=async n=>{
@@ -1414,6 +1423,24 @@ async function abrirPerfil(uid,nombre,foto){
 }
 $('ppX').onclick=()=>{$('perfilPub').hidden=true};
 $('perfilPub').onclick=e=>{if(e.target.id==='perfilPub')e.target.hidden=true};
+
+/* ===== invitado: solo lectura ===== */
+let invitado=false;
+function modoInvitado(){
+  if(user||invitado)return;invitado=true;window.kiraInvitado=true;
+  $('modalLogin').hidden=true;$('chat').hidden=true;$('invAviso').hidden=false;$('btnAdmin').hidden=true;
+  escucharTop();escucharSemana();
+  unsubMes=top10(collection(db,'temporadas',mesId(),'puntajes'),L=>listaMes=L,v=>errMes=v);
+  unsubSup=top10(collection(db,'supervivencia'),L=>listaSup=L,v=>errSup=v);
+  ganadores();pintaCierre();escucharJefe();
+  unsubAn=onSnapshot(doc(db,'config','anuncio'),sn=>{const t=sn.exists()?String(sn.data().texto||''):'';const L=t.split(/\r?\n/).map(x=>x.trim().slice(0,220)).filter(Boolean).slice(0,8);if(window.kiraSetAnuncios)window.kiraSetAnuncios(L.length?L:null);pintaPanel(sn.exists()?sn.data():{})},e=>console.error(e));
+}
+function salirInvitado(){
+  invitado=false;window.kiraInvitado=false;$('invAviso').hidden=true;
+  [unsubTop,unsubSem,unsubMes,unsubSup,unsubAn,unsubJefe].forEach(f=>f&&f());unsubTop=unsubSem=unsubMes=unsubSup=unsubAn=unsubJefe=null;
+}
+$('btnInvitado').onclick=modoInvitado;
+$('btnInvLogin').onclick=()=>{salirInvitado();$('modalLogin').hidden=false};
 
 /* ===== duelo en vivo con sala ===== */
 const LET='ABCDEFGHJKMNPQRSTUVWXYZ',cod4=()=>Array.from({length:4},()=>LET[Math.floor(Math.random()*LET.length)]).join('');
