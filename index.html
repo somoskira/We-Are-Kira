@@ -1393,7 +1393,7 @@ onAuthStateChanged(auth,u=>{
   if(u&&invitado)salirInvitado();
   user=u;$('btnAdmin').hidden=!esAdmin();if(!esAdmin())$('adminPanel').hidden=true;window.kiraUser=u?(u.displayName||''):'';window.kiraUid=u?u.uid:'';window.kiraFoto=u?(u.photoURL||''):'';$('modalLogin').hidden=!!u;$('chat').hidden=!u;$('btnAmigos').hidden=!u;
   if(unsub){unsub();unsub=null}
-  if(u){$('meFoto').src=u.photoURL||'';$('meNombre').textContent=u.displayName||'Usuario';$('chatBox').textContent='';primera=true;escuchar();escucharTop();escucharSemana();escucharSil();cargarPerfil();extras();escucharAmigos();pubMin()}else{cargado=false;pend=null;if(unsubTop){unsubTop();unsubTop=null}if(unsubSem){unsubSem();unsubSem=null}if(unsubSil){unsubSil();unsubSil=null}if(unsubSilL){unsubSilL();unsubSilL=null}[unsubMes,unsubSup,unsubAn,unsubRep,unsubJefe,unsubVip,unsubVipL].forEach(f=>f&&f());unsubMes=unsubSup=unsubAn=unsubRep=unsubJefe=unsubVip=unsubVipL=null;window.kiraVip=null;clearInterval(tPres);clearInterval(tCnt);silenciado=false;limpiaAmigos()}
+  if(u){$('meFoto').src=u.photoURL||'';$('meNombre').textContent=u.displayName||'Usuario';$('chatBox').textContent='';primera=true;escuchar();escucharTop();escucharSemana();escucharSil();cargarPerfil();extras();escucharAmigos();pubMin();setTimeout(syncNombre,4000)}else{cargado=false;pend=null;if(unsubTop){unsubTop();unsubTop=null}if(unsubSem){unsubSem();unsubSem=null}if(unsubSil){unsubSil();unsubSil=null}if(unsubSilL){unsubSilL();unsubSilL=null}[unsubMes,unsubSup,unsubAn,unsubRep,unsubJefe,unsubVip,unsubVipL].forEach(f=>f&&f());unsubMes=unsubSup=unsubAn=unsubRep=unsubJefe=unsubVip=unsubVipL=null;window.kiraVip=null;clearInterval(tPres);clearInterval(tCnt);silenciado=false;limpiaAmigos()}
 });
 
 const esAdmin=()=>!!user&&!!user.email&&user.email.toLowerCase()===ADMIN;
@@ -1722,6 +1722,21 @@ const pid=(x,y)=>x<y?x+'_'+y:y+'_'+x;
 function codigoAmigo(uid){const A='ABCDEFGHJKMNPQRSTUVWXYZ23456789';let h=2166136261;for(const c of uid){h^=c.charCodeAt(0);h=Math.imul(h,16777619)>>>0}let r='';for(let i=0;i<6;i++){r+=A[h%A.length];h=(Math.imul(h^(h>>>13),1274126177)>>>0)+i}return r}
 const enLinea=uid=>{const t=AM.pres[uid];return!!t&&Date.now()-t<5*60000};
 function pintaBtnAm(){const b=$('btnAmigos');if(!b||b.hidden)return;const on=AM.lista.filter(x=>enLinea(x.uid)).length;b.textContent='👥 AMIGOS'+(on?' ('+on+' 🟢)':'')+(AM.rec.length?' 🔔'+AM.rec.length:'')}
+async function syncNombre(){
+  if(!user)return;const uid=user.uid,nom=user.displayName||'Usuario',fot=user.photoURL||'';
+  let k='kiraSync_'+uid,v=nom+'|'+fot;try{if(localStorage.getItem(k)===v)return}catch(e){}
+  const U=async ref=>{try{const sn=await getDoc(ref);if(sn.exists()){const d=sn.data();if(d.usuario!==nom||(d.foto||'')!==fot)await updateDoc(ref,{usuario:nom,foto:fot})}}catch(e){console.error(e);return false}return true};
+  let ok=true;
+  for(const r of[doc(db,'puntajes',uid),doc(db,'semanas',semanaId(),'puntajes',uid),doc(db,'temporadas',mesId(),'puntajes',uid),doc(db,'supervivencia',uid)])ok=(await U(r))&&ok;
+  try{const r=doc(db,'jefe',semanaId(),'aportes',uid),sn=await getDoc(r);if(sn.exists()){const d=sn.data(),n20=nom.slice(0,20);if(d.n!==n20||(d.f||'')!==fot)await updateDoc(r,{n:n20,f:fot})}}catch(e){console.error(e);ok=false}
+  try{
+    for(const [c,lado] of[['a','a'],['b','b']]){
+      const q=await getDocs(query(collection(db,'amistades'),where(c,'==',uid)));
+      for(const d of q.docs){const x=d.data();if(x[lado+'N']!==nom.slice(0,30)||(x[lado+'F']||'')!==fot){const o={};o[lado+'N']=nom.slice(0,30);o[lado+'F']=fot;await updateDoc(d.ref,o)}}
+    }
+  }catch(e){console.error(e);ok=false}
+  if(ok){try{localStorage.setItem(k,v)}catch(e){}}
+}
 function pubMin(){if(!user)return;setDoc(doc(db,'perfiles_pub',user.uid),{uid:user.uid,n:(user.displayName||'Jugador').slice(0,30),f:user.photoURL||'',cod:codigoAmigo(user.uid)},{merge:true}).catch(()=>{})}
 async function refrescaPres(){
   if(!user)return;
