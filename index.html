@@ -559,9 +559,19 @@ let ac=null;const buf={};
 try{ac=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}
 if(ac)for(const k in SND)fetch(RUTA+k+'.mp3').then(r=>r.arrayBuffer()).then(d=>new Promise((ok,no)=>ac.decodeAudioData(d,ok,no))).then(x=>buf[k]=x).catch(()=>{});
 function sfx(k){if(!ac||!buf[k])return;try{const s=ac.createBufferSource(),g=ac.createGain();s.buffer=buf[k];g.gain.value=SND[k]*stats.aj.efx;s.connect(g);g.connect(ac.destination);s.start(0)}catch(e){}}
-const gm=new Audio(RUTA+'juego.mp3');gm.loop=true;gm.volume=.4;let musica=true;
+const LISTA_MUS=['juego1.mp3','juego2.mp3','juego3.mp3','juego4.mp3','juego5.mp3','juego6.mp3','juego7.mp3'];let musAct='';
+const gm=new Audio();gm.loop=false;gm.preload='auto';gm.volume=.4;let musica=true;
+function musSiguiente(ini){
+  if(!LISTA_MUS.length)return;
+  let c=LISTA_MUS.filter(x=>x!==musAct);if(!c.length)c=LISTA_MUS;
+  musAct=c[Math.floor(Math.random()*c.length)];gm.src=RUTA+musAct;
+  if(!ini&&musica&&!over&&!pausa&&!modal.hidden)gm.play().catch(()=>{});
+}
+gm.addEventListener('ended',()=>musSiguiente(false));
+gm.addEventListener('error',()=>{const i=LISTA_MUS.indexOf(musAct);if(i>=0)LISTA_MUS.splice(i,1);musAct='';if(LISTA_MUS.length)setTimeout(()=>musSiguiente(false),300)});
+musSiguiente(true);
 function aplicarAj(){try{gm.volume=.4*stats.aj.mus;intro.volume=.3*stats.aj.mus}catch(e){}}
-function musicaJuego(){if(musica){try{gm.currentTime=0}catch(e){}gm.play().catch(()=>{})}}
+function musicaJuego(){if(musica){musSiguiente(true);gm.play().catch(()=>{})}}
 
 /* ---------- gráficos ---------- */
 const bg=document.createElement('canvas');
